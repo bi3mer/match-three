@@ -19,10 +19,49 @@ export class Board {
   }
 
   public updateBoard(): number {
-    // fill, if not fill then check connect 3
+    if (this.fill()) {
+      return -1;
+    }
+
     return this.findConnect3();
   }
 
+  /**
+   * Return true if there is more fill to do, else return false
+   * 
+   * @TODO: the animation would be better with the commented for loop, but it
+   * doesn't handle the problem of:
+   * 
+   * X -1 X
+   * X -1 X
+   * 
+   * In this case, it basically replaces -1 with -1 every time and the whole 
+   * thing doesn't work.
+   */
+  private fill(): boolean {
+    for(let x = 0; x < BOARD_WIDTH; ++x) {
+      // for(let y = BOARD_HEIGHT-1; y >= 0; --y) {
+        for(let y = 0; y < BOARD_HEIGHT; ++y) {
+        if (this.b[y][x] === -1) {
+          if (y === 0) {
+            this.b[y][x] = Math.floor(Math.random() * Assets.size);
+          } else {
+            this.b[y][x] = this.b[y-1][x];
+            this.b[y-1][x] = -1;
+          }
+          
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Find one connect 3 or more and return the associated score
+   * @returns number - score
+   */
   private findConnect3(): number {
     let x: number, mod: number, cur: number;
     let score = 0;

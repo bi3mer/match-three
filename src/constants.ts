@@ -11,3 +11,4 @@ export const STATE_PLAYER = 0;
 export const STATE_MOUSE_MOVEMENT = 1;
 export const STATE_ANIMATION = 2;
 export const STATE_CHECK_BOARD = 4;
+export const STATE_TIME_OUT = 5;

@@ -1,6 +1,6 @@
 import { Assets } from "./assets";
 import { Board } from "./board";
-import { BOARD_HEIGHT, BOARD_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, STATE_ANIMATION, STATE_CHECK_BOARD, STATE_MOUSE_MOVEMENT, STATE_PLAYER } from "./constants";
+import { BOARD_HEIGHT, BOARD_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, STATE_ANIMATION, STATE_CHECK_BOARD, STATE_MOUSE_MOVEMENT, STATE_PLAYER, STATE_TIME_OUT } from "./constants";
 
 export class Game {
   private canvas: HTMLCanvasElement
@@ -8,6 +8,7 @@ export class Game {
   private brd: Board
   private state: number
   private score: number
+  private timeOut: number
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -20,12 +21,34 @@ export class Game {
     this.brd = new Board();
     this.state = STATE_CHECK_BOARD;
     this.score = 0;
+    this.timeOut = 0;
   }
 
-  update(): void {
+  update(deltaTime: number): void {
     this.ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-    const score = this.brd.updateBoard();
-    this.score += score;
+    switch (this.state) {
+      case STATE_CHECK_BOARD:
+        const modScore = this.brd.updateBoard();
+
+        if (modScore === 0) {
+          this.state = STATE_PLAYER;
+        } else {
+          this.score += Math.max(0, modScore);
+          this.timeOut = 25;
+          this.state = STATE_TIME_OUT;
+        }
+        break;
+      case STATE_TIME_OUT:
+        if(this.timeOut <= 0) {
+          this.state = STATE_CHECK_BOARD;
+        } else {
+          this.timeOut -= deltaTime;
+        }
+        break;
+      default:
+        // console.error(`Unhandled state '${this.state}'. The game is ruined.`);
+        break;
+    }
     // switch (this.state) {
     //   case STATE_PLAYER:
     //     console.error('state player not implemented');
