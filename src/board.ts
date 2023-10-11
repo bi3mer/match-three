@@ -18,6 +18,21 @@ export class Board {
     }
   }
 
+  public runSwitch(x1: number, y1: number, x2: number, y2: number): boolean {
+    let temp = this.b[y1][x1];
+    this.b[y1][x1] = this.b[y2][x2];
+    this.b[y2][x2] = temp;
+
+    const connectFound = this.connect3Exists();
+    if (!connectFound) {
+      temp = this.b[y1][x1];
+      this.b[y1][x1] = this.b[y2][x2];
+      this.b[y2][x2] = temp;
+    } 
+
+    return connectFound;
+  }
+
   public updateBoard(): number {
     if (this.fill()) {
       return -1;
@@ -102,5 +117,42 @@ export class Board {
     }
 
     return 0;
+  }
+
+  private connect3Exists(): boolean {
+    let x: number, mod: number, cur: number;
+    let score = 0;
+
+    for(let y = 0; y < BOARD_HEIGHT; ++y) {
+      for (x = 0; x < BOARD_WIDTH; ++x) {
+        cur = this.b[y][x];
+        if (cur === -1) continue;
+
+        // horizontal direction
+        for(score = 0; score + x < BOARD_WIDTH; ++score) {
+          if (cur !== this.b[y][score+x]) break;
+        }
+
+        if (score >= 3) {
+          const max = x+score;
+          for(; x < max; ++x) {
+            this.b[y][x] = -1;
+          }
+
+          return true;
+        }
+        
+        // vertical directions
+        for(score = 0; score + y< BOARD_HEIGHT; ++score) {
+          if (cur !== this.b[y+score][x]) break;
+        }
+
+        if (score >= 3) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
