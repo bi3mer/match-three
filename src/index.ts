@@ -5,13 +5,14 @@ import { Game } from "./game";
   Assets.init();
   const loadLoop = () => {
     const loaded = Assets.percentLoaded();
-
+    
     if (loaded !== 1.0) {
-      document.getElementById('myProgress')!.style.width = `${loaded}%`;
+      // @ts-ignore
+      document.getElementById('progress')!.value = loaded;
       window.requestAnimationFrame(loadLoop);
     } else {
       // hide progress bar
-      document.getElementById('myProgress')!.hidden = true;
+      document.getElementById('progress')!.hidden = true;
 
       // start the game
       const game = new Game();
