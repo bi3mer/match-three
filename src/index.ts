@@ -8,6 +8,7 @@ import { Game } from "./game";
 
     if (loaded !== 1.0) {
       document.getElementById('myProgress')!.style.width = `${loaded}%`;
+      window.requestAnimationFrame(loadLoop);
     } else {
       // hide progress bar
       document.getElementById('myProgress')!.hidden = true;
@@ -28,8 +29,6 @@ import { Game } from "./game";
       
       window.requestAnimationFrame(loop);
     }
-
-    window.requestAnimationFrame(loadLoop);
   };
 
   window.requestAnimationFrame (loadLoop);
