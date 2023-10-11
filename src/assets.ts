@@ -31,4 +31,19 @@ export class Assets {
     this.backGround = new Image();
     this.backGround.src = 'assets/bg.png';
   }
+
+  static percentLoaded(): number {
+    let loaded = 0;
+    for (let i = 0; i < this.size; ++i) {
+      if (this.matchTypes[i].complete) {
+        ++loaded;
+      }
+    }
+
+    if (this.backGround.complete) {
+      ++loaded;
+    }
+
+    return loaded / (this.size + 1);
+  }
 }
