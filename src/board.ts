@@ -7,14 +7,14 @@ export class Board {
   // TODO: update animation so it goes top down
   // TODO: add some kind of support for a proper lerp
   b: number[][]
-  WIDTH = 8
-  HEIGHT = 8
+  isDirty: boolean
   
   constructor() {
+    this.isDirty = true;
     this.b = [];
-    for(let y = 0; y < this.HEIGHT; ++y) {
+    for(let y = 0; y < BOARD_HEIGHT; ++y) {
       let temp = [];
-      for(let x = 0; x < this.WIDTH; ++x) {
+      for(let x = 0; x < BOARD_WIDTH; ++x) {
         temp.push(Math.floor(Math.random() * Assets.size));
       }
 
@@ -38,6 +38,7 @@ export class Board {
   }
 
   public updateBoard(): number {
+    this.isDirty = true;
     if (this.fill()) {
       return -1;
     }
