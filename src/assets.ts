@@ -1,7 +1,10 @@
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./constants";
 
+// TODO: Loading right now assumes fast internet. Need to have an isLoaded
+// function and use it before the game is started.
 export class Assets {
-  static images: HTMLImageElement[]
+  static matchTypes: HTMLImageElement[]
+  static backGround: HTMLImageElement
   static size: number
   
   static init(): void {
@@ -15,14 +18,17 @@ export class Assets {
       "star"
     ];
 
-    this.images = [];
+    this.matchTypes = [];
     this.size = types.length;
     
     for(let i = 0; i < this.size; ++i) {
-      this.images.push(new Image());
-      this.images[i].src = `assets/${types[i]}.png`;
-      this.images[i].width = IMAGE_WIDTH;
-      this.images[i].height = IMAGE_HEIGHT;
+      this.matchTypes.push(new Image());
+      this.matchTypes[i].src = `assets/${types[i]}.png`;
+      this.matchTypes[i].width = IMAGE_WIDTH;
+      this.matchTypes[i].height = IMAGE_HEIGHT;
     }
+
+    this.backGround = new Image();
+    this.backGround.src = 'assets/bg.png';
   }
 }

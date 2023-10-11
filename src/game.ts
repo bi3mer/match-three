@@ -17,6 +17,7 @@ export class Game {
     this.canvas.setAttribute('id', 'canvas');
     this.canvas.setAttribute('width', `${SCREEN_HEIGHT}`);
     this.canvas.setAttribute('height', `${SCREEN_HEIGHT}`);
+    // this.canvas.style.backgroundImage = "assets/bg.png"
     document.getElementById('canvashere')!.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d')!;
 
@@ -29,7 +30,8 @@ export class Game {
   }
 
   update(deltaTime: number): void {
-    this.ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    this.ctx.drawImage(Assets.backGround, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    // this.ctx.clearRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     switch (this.state) {
       case STATE_CHECK_BOARD:
         const modScore = this.brd.updateBoard();
@@ -100,7 +102,7 @@ export class Game {
         if (assetIndex == -1) continue;
 
         this.ctx.drawImage(
-          Assets.images[assetIndex],
+          Assets.matchTypes[assetIndex],
           x * IMAGE_WIDTH,
           (y+1) * IMAGE_HEIGHT,
           IMAGE_WIDTH,

@@ -2,6 +2,10 @@ import { Assets } from "./assets";
 import { BOARD_HEIGHT, BOARD_WIDTH } from "./constants";
 
 export class Board {
+  // TODO: save if switch occurred and use that for updated board
+  // TODO: have connect 3 remove all instances
+  // TODO: update animation so it goes top down
+  // TODO: add some kind of support for a proper lerp
   b: number[][]
   WIDTH = 8
   HEIGHT = 8
@@ -80,6 +84,7 @@ export class Board {
   private findConnect3(): number {
     let x: number, mod: number, cur: number;
     let score = 0;
+    let totalScore = 0;
 
     for(let y = 0; y < BOARD_HEIGHT; ++y) {
       for (x = 0; x < BOARD_WIDTH; ++x) {

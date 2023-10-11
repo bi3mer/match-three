@@ -1,7 +1,7 @@
-export const SCREEN_HEIGHT = 720;
-export const SCREEN_WIDTH = 720;
+export const SCREEN_HEIGHT = 880;
+export const SCREEN_WIDTH = 640;
 
-export const BOARD_WIDTH = 8;
+export const BOARD_WIDTH = 6;
 export const BOARD_HEIGHT = 7;
 
 export const IMAGE_WIDTH = SCREEN_WIDTH / BOARD_WIDTH;
