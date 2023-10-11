@@ -1,7 +1,5 @@
 import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./constants";
 
-// TODO: Loading right now assumes fast internet. Need to have an isLoaded
-// function and use it before the game is started.
 export class Assets {
   static matchTypes: HTMLImageElement[]
   static backGround: HTMLImageElement
@@ -35,14 +33,10 @@ export class Assets {
   static percentLoaded(): number {
     let loaded = 0;
     for (let i = 0; i < this.size; ++i) {
-      if (this.matchTypes[i].complete) {
-        ++loaded;
-      }
+      loaded += Number(this.matchTypes[i].complete);
     }
 
-    if (this.backGround.complete) {
-      ++loaded;
-    }
+    loaded += Number(this.backGround.complete);
 
     return loaded / (this.size + 1);
   }

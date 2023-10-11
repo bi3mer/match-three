@@ -20,6 +20,13 @@ export class Board {
 
       this.b.push(temp);
     }
+
+    // @debugging
+    this.b[BOARD_HEIGHT-1][0] = 1;
+    this.b[BOARD_HEIGHT-1][1] = 1;
+    this.b[BOARD_HEIGHT-1][2] = 1;
+    this.b[BOARD_HEIGHT-2][0] = 1;
+    this.b[BOARD_HEIGHT-3][0] = 1;
   }
 
   public runSwitch(x1: number, y1: number, x2: number, y2: number): boolean {
@@ -68,7 +75,6 @@ export class Board {
     let fillNotComplete = false;
     for(let x = 0; x < BOARD_WIDTH; ++x) {
       for(let y = BOARD_HEIGHT-1; y >= 0; --y) {
-      // for(let y = 0; y < BOARD_HEIGHT; ++y) {
         if (this.b[y][x] === -1) {
           if (y === 0) {
             this.b[y][x] = Math.floor(Math.random() * Assets.size);
@@ -90,42 +96,20 @@ export class Board {
    * @returns number - score
    */
   private findConnect3(): number {
-    let x: number, mod: number, cur: number;
+    let x: number, val: number;
     let score = 0;
-    let totalScore = 0;
 
     for(let y = 0; y < BOARD_HEIGHT; ++y) {
       for (x = 0; x < BOARD_WIDTH; ++x) {
-        cur = this.b[y][x];
-        if (cur === -1) continue;
-
-        // horizontal direction
-        for(score = 0; score + x < BOARD_WIDTH; ++score) {
-          if (cur !== this.b[y][score+x]) break;
-        }
-
-        if (score >= 3) {
-          const max = x+score;
-          for(; x < max; ++x) {
-            this.b[y][x] = -1;
-          }
-
-          return score;
-        }
+        val = this.b[y][x];
+        if (val == -1) continue;
         
-        // vertical directions
-        for(score = 0; score + y< BOARD_HEIGHT; ++score) {
-          if (cur !== this.b[y+score][x]) break;
-        }
-
-        if (score >= 3) {
-          const max = y+score;
-          for(; y < max; ++y) {
-            this.b[y][x] = -1;
+        let modX: number, modY: number;
+        for (let modY = 0; y+modY < BOARD_HEIGHT; ++modY) {
+          for(let modX = 0; x+modX < BOARD_WIDTH; ++modX) {
           }
+        } 
 
-          return score;
-        }
       }
     }
 
