@@ -15,7 +15,7 @@ export class Game {
   constructor() {
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute('id', 'canvas');
-    this.canvas.setAttribute('width', `${SCREEN_HEIGHT}`);
+    this.canvas.setAttribute('width', `${SCREEN_WIDTH}`);
     this.canvas.setAttribute('height', `${SCREEN_HEIGHT}`);
     document.getElementById('canvashere')!.appendChild(this.canvas);
     this.ctx = this.canvas.getContext('2d')!;

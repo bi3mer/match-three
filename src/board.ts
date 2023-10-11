@@ -23,19 +23,25 @@ export class Board {
   }
 
   public runSwitch(x1: number, y1: number, x2: number, y2: number): boolean {
-    let temp = this.b[y1][x1];
-    this.b[y1][x1] = this.b[y2][x2];
-    this.b[y2][x2] = temp;
-
-    const connectFound = this.connect3Exists();
-    if (!connectFound) {
-      temp = this.b[y1][x1];
+    if((x1 == x2 && Math.abs(y1-y2) == 1) || 
+       (y1 == y2 && Math.abs(x1-x2) == 1)) 
+    {
+      let temp = this.b[y1][x1];
       this.b[y1][x1] = this.b[y2][x2];
       this.b[y2][x2] = temp;
-    } 
+  
+      const connectFound = this.connect3Exists();
+      if (!connectFound) {
+        temp = this.b[y1][x1];
+        this.b[y1][x1] = this.b[y2][x2];
+        this.b[y2][x2] = temp;
+      } 
+      
+      return connectFound;
+    }
 
-    return connectFound;
-  }
+    return false;
+  } 
 
   public updateBoard(): number {
     this.isDirty = true;
