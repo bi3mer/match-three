@@ -58,23 +58,24 @@ export class Board {
    * thing doesn't work.
    */
   private fill(): boolean {
+    let fillNotComplete = false;
     for(let x = 0; x < BOARD_WIDTH; ++x) {
-      // for(let y = BOARD_HEIGHT-1; y >= 0; --y) {
-        for(let y = 0; y < BOARD_HEIGHT; ++y) {
+      for(let y = BOARD_HEIGHT-1; y >= 0; --y) {
+      // for(let y = 0; y < BOARD_HEIGHT; ++y) {
         if (this.b[y][x] === -1) {
           if (y === 0) {
             this.b[y][x] = Math.floor(Math.random() * Assets.size);
-          } else {
+            fillNotComplete = true;
+          } else if (this.b[y-1][x] !== -1) {
             this.b[y][x] = this.b[y-1][x];
             this.b[y-1][x] = -1;
+            fillNotComplete = true;
           }
-          
-          return true;
         }
       }
     }
 
-    return false;
+    return fillNotComplete;
   }
 
   /**
