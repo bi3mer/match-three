@@ -3,6 +3,7 @@ export const SCREEN_WIDTH = 640;
 
 export const BOARD_WIDTH = 6;
 export const BOARD_HEIGHT = 7;
+export const BOARD_SIZE = BOARD_WIDTH * BOARD_WIDTH;
 
 export const IMAGE_WIDTH = SCREEN_WIDTH / BOARD_WIDTH;
 export const IMAGE_HEIGHT = IMAGE_WIDTH;

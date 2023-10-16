@@ -1,5 +1,6 @@
 import { Assets } from "./assets";
-import { BOARD_HEIGHT, BOARD_WIDTH } from "./constants";
+import { BOARD_HEIGHT, BOARD_WIDTH, BOARD_SIZE, MATCH_TYPES } from "./constants";
+import { randomInt } from "./util";
 
 export class Board {
   // TODO: save if switch occurred and use that for updated board
@@ -73,8 +74,36 @@ export class Board {
    * true if a fill operation is run. Else, returns false.
    */
   private fill(): boolean {
-    // @TODO: bit board breaks the current approach
-    return false;
+    let fillPerformed: boolean = false;
+    let bIndex: number;
+   
+    // loop through all indexes in the board
+    for(let i = BOARD_SIZE-1; i >= 0; --i) {
+      // loop through each board type to see if a piece exists at the board index
+      for(bIndex = 0; bIndex < MATCH_TYPES; ++bIndex) {
+        // Check ot see if a boad exists at the index and break if we find it
+        if (this.b[bIndex] << i) {
+          break;
+        }
+      }
+      
+      // If bIndex is equal to MATCH_TYPES, then we know that we found a piece
+      // and keep going. Else, that means we didn't find a piece and we either 
+      // need to move the piece above down or select a random board to fill.
+      if (bIndex != MATCH_TYPES) {
+        fillPerformed = true;
+        if (bIndex % BOARD_WIDTH) {
+          // Piece missing on top row, so select board index
+          const index = randomInt(0, BOARD_WIDTH-1);
+          this.b[index] |= (1 << bIndex);
+        } else {
+          // Empty spot somewhere on the board that is not on the top row, so 
+          // we should take the piece above this and place it down here.
+        }
+      }
+    } 
+
+    return fillPerformed;
   }
 
   /**
