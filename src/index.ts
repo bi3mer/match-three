@@ -13,7 +13,7 @@ import { Game } from "./game";
     } else {
       // hide progress bar
       document.getElementById('progress')!.hidden = true;
-
+      
       // start the game
       const game = new Game();
   

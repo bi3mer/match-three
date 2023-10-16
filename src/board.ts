@@ -12,13 +12,13 @@ export class Board {
   // For each type there is a bitboard
   //
   // |-----------------------|
-  // | 6  13  20  27  34  41 | top row
-  // | 5  12  19  26  33  40 |
-  // | 4  11  18  25  32  39 |
-  // | 3  10  17  24  31  38 |
-  // | 2   9  16  23  30  37 |
+  // | 0   7  14  21  28  35 | top row
   // | 1   8  15  22  29  36 |
-  // | 0   7  14  21  28  35 | bottom row
+  // | 2   9  16  23  30  37 |
+  // | 3  10  17  24  31  38 |
+  // | 4  11  18  25  32  39 |
+  // | 5  12  19  26  33  40 |
+  // | 6  13  20  27  34  41 | bottom row
   // |-----------------------|
   //
   // Meaning, we are not using 42-63 of a 64 bit number in JavaScript. Also, 
@@ -30,7 +30,7 @@ export class Board {
   
   constructor() {
     this.b = [];
-    for(let i = 0; i < Assets.size; ++i) {
+    for(let i = 0; i < MATCH_TYPES; ++i) {
       this.b.push(0);
     }
   }
@@ -48,6 +48,25 @@ export class Board {
     return this.findConnect3();
   }
 
+  public getType(x: number, y: number): number {
+    const index = x * MATCH_TYPES + y;
+    for (let i = 0; i < MATCH_TYPES; ++i) {
+      if (this.b[i] < index) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  /**
+   * Get a list of all valid moves for the current board. Going to be used by
+   * an AI to play the game.
+   */
+  public validMoves(): [number, number][] {
+    return [];
+  }
+
   /**
    * Loop through the board and fill empty spots either with whatever tile
    * is on top of the current tile or by putting in a random tile. Will return
@@ -63,7 +82,20 @@ export class Board {
    * @returns number - score
    */
   private findConnect3(): number {
-    // @TODO: get this to work with bitboards 
+    for (let i = 0; i < Assets.size; ++i) {
+      const b = this.b[i];
+      const h = b & b << 7 & b << 14; 
+      const v = b & b << 1 & b << 2;
+
+      if (h > 0) {
+        // @TODO: do something
+      }
+
+      if (v > 0) {
+        // @TODO: do something
+      }
+    }
+
     return 0;  
   }
   

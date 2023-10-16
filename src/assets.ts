@@ -1,9 +1,8 @@
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./constants";
+import { IMAGE_HEIGHT, IMAGE_WIDTH, MATCH_TYPES } from "./constants";
 
 export class Assets {
   static matchTypes: HTMLImageElement[]
   static backGround: HTMLImageElement
-  static size: number
   
   static init(): void {
     const types = [
@@ -17,9 +16,8 @@ export class Assets {
     ];
 
     this.matchTypes = [];
-    this.size = types.length;
     
-    for(let i = 0; i < this.size; ++i) {
+    for(let i = 0; i < MATCH_TYPES; ++i) {
       this.matchTypes.push(new Image());
       this.matchTypes[i].src = `assets/${types[i]}.png`;
       this.matchTypes[i].width = IMAGE_WIDTH;
@@ -32,12 +30,12 @@ export class Assets {
 
   static percentLoaded(): number {
     let loaded = 0;
-    for (let i = 0; i < this.size; ++i) {
+    for (let i = 0; i < MATCH_TYPES; ++i) {
       loaded += Number(this.matchTypes[i].complete);
     }
 
     loaded += Number(this.backGround.complete);
 
-    return loaded / (this.size + 1);
+    return loaded / (MATCH_TYPES + 1);
   }
 }
