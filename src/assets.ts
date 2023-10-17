@@ -20,8 +20,8 @@ export class Assets {
     for(let i = 0; i < MATCH_TYPES; ++i) {
       this.matchTypes.push(new Image());
       this.matchTypes[i].src = `assets/${types[i]}.png`;
-      this.matchTypes[i].width = IMAGE_WIDTH;
-      this.matchTypes[i].height = IMAGE_HEIGHT;
+      this.matchTypes[i].width = Number(IMAGE_WIDTH);
+      this.matchTypes[i].height = Number(IMAGE_HEIGHT);
     }
 
     this.backGround = new Image();

@@ -32,7 +32,7 @@ export class Board {
   constructor() {
     this.b = [];
     for(let i = 0; i < MATCH_TYPES; ++i) {
-      this.b.push(0);
+      this.b.push(BigInt(0));
     }
   }
 
@@ -50,9 +50,10 @@ export class Board {
   }
 
   public getType(x: number, y: number): number {
-    const index = x * MATCH_TYPES + y;
+    const index = BigInt(x * MATCH_TYPES + y);
     for (let i = 0; i < MATCH_TYPES; ++i) {
-      if (this.b[i] < index) {
+      const b = this.b[i];
+      if ((b & (BigInt(1) << index)) !== BigInt(0)) {
         return i;
       }
     }
@@ -75,13 +76,13 @@ export class Board {
    */
   private fill(): boolean {
     let fillPerformed: boolean = false;
-    let bIndex: number;
+    let bIndex: BigInt;
    
     // loop through all indexes in the board
-    for(let i = BOARD_SIZE-1; i >= 0; --i) {
+    for(let i = BOARD_SIZE - BigInt(1); i >= 0; --i) {
       // loop through each board type to see if a piece exists at the board index
-      for(bIndex = 0; bIndex < MATCH_TYPES; ++bIndex) {
-        // Check ot see if a boad exists at the index and break if we find it
+      for(bIndex = BigInt(0); bIndex < MATCH_TYPES; ++bIndex) {
+        // Check ot see if a board exists at the index and break if we find it
         if (this.b[bIndex] << i) {
           break;
         }
@@ -90,12 +91,12 @@ export class Board {
       // If bIndex is equal to MATCH_TYPES, then we know that we found a piece
       // and keep going. Else, that means we didn't find a piece and we either 
       // need to move the piece above down or select a random board to fill.
-      if (bIndex != MATCH_TYPES) {
+      if (bIndex == MATCH_TYPES) {
         fillPerformed = true;
-        if (bIndex % BOARD_WIDTH) {
+        if (i % BOARD_WIDTH == 0) {
           // Piece missing on top row, so select board index
-          const index = randomInt(0, BOARD_WIDTH-1);
-          this.b[index] |= (1 << bIndex);
+          const index = randomInt(0, Number(BOARD_WIDTH)-1);
+          this.b[index] |= (BigInt(1) << BigInt(bIndex));
         } else {
           // Empty spot somewhere on the board that is not on the top row, so 
           // we should take the piece above this and place it down here.
@@ -113,8 +114,8 @@ export class Board {
   private findConnect3(): number {
     for (let i = 0; i < Assets.size; ++i) {
       const b = this.b[i];
-      const h = b & b << 7 & b << 14; 
-      const v = b & b << 1 & b << 2;
+      const h = b & b << BigInt(7) & b << BigInt(14); 
+      const v = b & b << BigInt(1) & b << BigInt(2);
 
       if (h > 0) {
         // @TODO: do something
