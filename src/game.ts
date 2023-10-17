@@ -36,7 +36,7 @@ export class Game {
   
     for(y=0; y < constants.BOARD_HEIGHT; ++y) {
       for(x=0; x < constants.BOARD_WIDTH; ++x) {
-        const assetIndex = this.brd.getType(x, y);
+        const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
         if (assetIndex == -1) continue;
         if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
 
