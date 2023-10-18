@@ -51,7 +51,7 @@ export class Game {
 
     if (this.mouse.mouseDown) {
       this.ctx.drawImage(
-        Assets.matchTypes[this.brd.b[this.mouse.downY][this.mouse.downX]],
+        Assets.matchTypes[this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY))],
         this.mouse.x - constants.IMAGE_WIDTH/2,
         this.mouse.y - constants.IMAGE_HEIGHT/2,
         constants.IMAGE_WIDTH,
