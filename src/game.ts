@@ -47,6 +47,7 @@ export class Game {
           constants.IMAGE_WIDTH,
           constants.IMAGE_HEIGHT);
       }
+      break;
     }
 
     if (this.mouse.mouseDown) {

@@ -50,9 +50,10 @@ export class Board {
   }
 
   public getType(x: BigInt, y: BigInt): number {
-    const index = BigInt(1) << (x * BOARD_WIDTH + y);
+    const index = BigInt(1) << (x * BOARD_HEIGHT + y);
     for (let i = 0; i < MATCH_TYPES; ++i) {
       if ((this.b[i] & index) != 0) {
+        console.log(x,y);
         return i;
       }
     }
@@ -91,9 +92,10 @@ export class Board {
       // and keep going. Else, that means we didn't find a piece and we either 
       // need to move the piece above down or select a random board to fill.
       if (bIndex == MATCH_TYPES) {
-        if (i % BOARD_WIDTH == 0) {
+        if (i % BOARD_HEIGHT == 0) {
           // Piece missing on top row, so select board index
-          const index = randomInt(0, Number(BOARD_WIDTH)-1);
+          console.log(`filling position ${i}`);
+          const index = randomInt(0, Number(MATCH_TYPES)-1);
           this.b[index] |= (BigInt(1) << i);
           fillPerformed = true;
         } else {
