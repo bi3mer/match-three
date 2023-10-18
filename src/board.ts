@@ -78,18 +78,19 @@ export class Board {
     let bIndex: BigInt;
 
     // loop through all indexes in the board
+    console.log(BOARD_SIZE);
     for(let i = BOARD_SIZE - BigInt(1); i >= 0; --i) {
       // loop through each board type to see if a piece exists at the board index
       for(bIndex = BigInt(0); bIndex < MATCH_TYPES; ++bIndex) {
         // Check ot see if a board exists at the index and break if we find it
         if ((this.b[bIndex] & (BigInt(1) << i)) != 0) {
-          break;
+          break; // nothing found at position i
         }
       }
       
       // If bIndex is equal to MATCH_TYPES, then we know that we found a piece
       // and keep going. Else, that means we didn't find a piece and we either 
-      // need to move the piece above down or select a random board to fill.
+      // need to move the piece above down or fill in randomly
       if (bIndex == MATCH_TYPES) {
         fillPerformed = true;
         if (i % BOARD_HEIGHT == 0) {
@@ -98,14 +99,15 @@ export class Board {
           this.b[index] |= (BigInt(1) << i);
         } else {
           // Empty spot somewhere on the board that is not on the top row, so 
-          // we should take the piece above this and place it down here.
+          // we should take the piece above this and place it down here. Refer
+          // to the board above to see that up by one is subtraction by one.
           const aboveIndex = (BigInt(1) << (i - BigInt(1)));
           for (let aboveBoardIndex = 0; aboveBoardIndex < MATCH_TYPES; ++aboveBoardIndex) {
             if ((this.b[aboveBoardIndex] & aboveIndex) != 0) {
               // set the current position i to 1
               this.b[aboveBoardIndex] |= (BigInt(1) << i);
 
-              // Set the position above to i
+              // toggle the position above to 0
               this.b[aboveBoardIndex] ^= aboveIndex;
               break;
             }
