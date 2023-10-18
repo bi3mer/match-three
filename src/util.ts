@@ -15,3 +15,8 @@ export function lerp (a: number, b: number, percent: number){
 export function randomInt(min: number, max: number): number{
   return Math.floor(Math.random() * (max-min+1) + min);
 }
+
+// @TODO: make this branchless
+export function bigAbs(a: BigInt): BigInt {
+  return a >= 0 ? a : -a;
+}

@@ -105,10 +105,10 @@ export class Game {
     if (this.mouse.shouldHandleMouseEvent) {
       this.mouse.shouldHandleMouseEvent = false;
       if (this.brd.runSwitch(
-        this.mouse.downX, 
-        this.mouse.downY, 
-        this.mouse.upX, 
-        this.mouse.upY)) 
+        BigInt(this.mouse.downX), 
+        BigInt(this.mouse.downY), 
+        BigInt(this.mouse.upX), 
+        BigInt(this.mouse.upY))) 
       {
         this.timeOut = 500;
         this.state = constants.STATE_TIME_OUT;
