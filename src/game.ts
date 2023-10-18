@@ -43,11 +43,10 @@ export class Game {
         this.ctx.drawImage(
           Assets.matchTypes[assetIndex],
           x * constants.IMAGE_WIDTH,
-          (y+1) * constants.IMAGE_HEIGHT,
+          (y+1) * constants.IMAGE_HEIGHT, // first row is for UI
           constants.IMAGE_WIDTH,
           constants.IMAGE_HEIGHT);
       }
-      break;
     }
 
     if (this.mouse.mouseDown) {

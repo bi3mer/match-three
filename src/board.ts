@@ -53,7 +53,6 @@ export class Board {
     const index = BigInt(1) << (x * BOARD_HEIGHT + y);
     for (let i = 0; i < MATCH_TYPES; ++i) {
       if ((this.b[i] & index) != 0) {
-        console.log(x,y);
         return i;
       }
     }
@@ -77,7 +76,7 @@ export class Board {
   private fill(): boolean {
     let fillPerformed: boolean = false;
     let bIndex: BigInt;
-   
+
     // loop through all indexes in the board
     for(let i = BOARD_SIZE - BigInt(1); i >= 0; --i) {
       // loop through each board type to see if a piece exists at the board index
@@ -92,15 +91,25 @@ export class Board {
       // and keep going. Else, that means we didn't find a piece and we either 
       // need to move the piece above down or select a random board to fill.
       if (bIndex == MATCH_TYPES) {
+        fillPerformed = true;
         if (i % BOARD_HEIGHT == 0) {
           // Piece missing on top row, so select board index
-          console.log(`filling position ${i}`);
           const index = randomInt(0, Number(MATCH_TYPES)-1);
           this.b[index] |= (BigInt(1) << i);
-          fillPerformed = true;
         } else {
           // Empty spot somewhere on the board that is not on the top row, so 
           // we should take the piece above this and place it down here.
+          const aboveIndex = (BigInt(1) << (i - BigInt(1)));
+          for (let aboveBoardIndex = 0; aboveBoardIndex < MATCH_TYPES; ++aboveBoardIndex) {
+            if ((this.b[aboveBoardIndex] & aboveIndex) != 0) {
+              // set the current position i to 1
+              this.b[aboveBoardIndex] |= (BigInt(1) << i);
+
+              // Set the position above to i
+              this.b[aboveBoardIndex] ^= aboveIndex;
+              break;
+            }
+          }
         }
       }
     } 

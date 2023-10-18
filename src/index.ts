@@ -24,13 +24,8 @@ import { Game } from "./game";
         delta = timeStep - oldTimeFrame;
         oldTimeFrame = timeStep;
         game.update(delta);
-        game.update(delta);
-        game.update(delta);
-        game.update(delta);
-        game.update(delta);
-        game.update(delta);
         game.render();
-        //window.requestAnimationFrame(loop);
+        window.requestAnimationFrame(loop);
       }
       
       window.requestAnimationFrame(loop);
