@@ -50,13 +50,16 @@ export class Game {
     }
 
     if (this.mouse.mouseDown) {
-      this.ctx.drawImage(
-        Assets.matchTypes[this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY))],
-        this.mouse.x - constants.IMAGE_WIDTH/2,
-        this.mouse.y - constants.IMAGE_HEIGHT/2,
-        constants.IMAGE_WIDTH,
-        constants.IMAGE_HEIGHT
-      );
+      const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
+      if (type !== -1) {
+        this.ctx.drawImage(
+          Assets.matchTypes[type],
+          this.mouse.x - constants.IMAGE_WIDTH/2,
+          this.mouse.y - constants.IMAGE_HEIGHT/2,
+          constants.IMAGE_WIDTH,
+          constants.IMAGE_HEIGHT
+        );
+      }
     }
   
     const scoreText = `Score: ${this.score}`;
@@ -85,7 +88,13 @@ export class Game {
   private checkBoardState() {
     const modScore = this.brd.updateBoard();
     if (modScore === 0) {
-      this.state = constants.STATE_PLAYER;
+      if (this.brd.validMoveExists()) {
+        this.state = constants.STATE_PLAYER;
+      } else {
+        this.brd.clear();
+        this.score += Number(constants.BOARD_SIZE); 
+        this.state = constants.STATE_TIME_OUT; // @TODO: change to explosion state
+      }
     } else {
       this.score += Math.max(0, modScore);
       this.timeOut = 25;
