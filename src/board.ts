@@ -6,6 +6,8 @@ const BIG_0 = BigInt(0);
 const BIG_1 = BigInt(1);
 const BIG_2 = BigInt(2);
 const BIG_3 = BigInt(3);
+const BIG_4 = BigInt(4);
+const BIG_5 = BigInt(5);
 
 export class Board {
   // TODO: save if switch occurred and use that for updated board
@@ -228,22 +230,19 @@ export class Board {
 
   // Need to handle horizontal positions in 6 different dirrections
   //
-  //    *     *
-  //  * - X X - *
-  //    *     *
+  //    3     4
+  //  1 - X X - 2
+  //    5     6
   //
   // The Xs represent two pieces together. If a piece exists at any of the 6
-  // star locations then there exists a valid move for the player. The same is
-  // true for vertical but rotate the diagram ninety degrees.
+  // numbered locations then there exists a valid move for the player. The same
+  // is true for vertical but rotate the diagram ninety degrees.
   // @TODO: handle vertical
   private validMoveExistsForBoard(boardIndex: number): boolean {
-    const b = this.b[boardIndex];
-    const XX = (b << BOARD_HEIGHT) & (b << (BOARD_HEIGHT*BIG_2));
-    console.log('here!', b, XX, BOARD_HEIGHT, BIG_3, BIG_0);
-    console.log((b & XX));
-    console.log((XX & (b << (BOARD_HEIGHT*BIG_3))));
-    console.log((b & XX) | (XX & (b << (BOARD_HEIGHT*BIG_3))));
-    console.log(((b & XX) | (XX & (b << (BOARD_HEIGHT*BIG_3)))) > BIG_0);
-    return XX > BIG_0;
+    const B = this.b[boardIndex];
+    const XX = (B << (BOARD_HEIGHT*BIG_2) & (B << (BOARD_HEIGHT*BIG_3));
+    const h1 = B & XX;
+    const h2 = XX & (B << (BOARD_HEIGHT*BIG_5));
+    return (h1 | h2) > BIG_0;
   }
 }
