@@ -1,13 +1,15 @@
-import { Assets } from "./assets";
-import { BOARD_HEIGHT, BOARD_WIDTH, BOARD_SIZE, MATCH_TYPES } from "./constants";
+import { BOARD_HEIGHT, BOARD_SIZE, MATCH_TYPES } from "./constants";
 import { randomInt, bigAbs } from "./util";
 
-const BIG_0 = BigInt(0);
+const BIG_0: BigInt = BigInt(0);
 const BIG_1 = BigInt(1);
 const BIG_2 = BigInt(2);
 const BIG_3 = BigInt(3);
 const BIG_4 = BigInt(4);
 const BIG_5 = BigInt(5);
+
+//const TOP_MASK: BigInt = !BIG_0; // this is wrong!
+// console.log(TOP_MASK, typeof(TOP_MASK));
 
 export class Board {
   // TODO: save if switch occurred and use that for updated board
@@ -33,25 +35,24 @@ export class Board {
   // note that while I would like to use Number, bit operations on it converts
   // to a 32 bit number, which breaks this representation. So... BigInt.
   //
-  b: number[][]
-  boards: BigInt[]
-  
+  b: BigInt[]
+
   constructor() {
     this.b = [];
-    for(let i = 0; i < MATCH_TYPES; ++i) {
+    for (let i = 0; i < MATCH_TYPES; ++i) {
       this.b.push(BIG_0);
     }
   }
 
   public clear(): void {
-    for(let i = 0; i < MATCH_TYPES; ++i) {
+    for (let i = 0; i < MATCH_TYPES; ++i) {
       this.b[i] = BIG_0;
     }
   }
 
   public validMoveExists(): boolean {
     for (let i = 0; i < MATCH_TYPES; ++i) {
-      if(this.validMoveExistsForBoard(i)) {
+      if (this.validMoveExistsForBoard(i)) {
         console.log(`valid move exists for: ${i}`);
         return true;
       }
@@ -62,11 +63,11 @@ export class Board {
 
   public runSwitch(x1: BigInt, y1: BigInt, x2: BigInt, y2: BigInt): boolean {
     // Switch must be with in one block 
-    if((x1 == x2 && bigAbs(y1-y2) === BIG_1) || (y1 == y2 && bigAbs(x1-x2) === BIG_1)) {
+    if ((x1 == x2 && bigAbs(y1 - y2) === BIG_1) || (y1 == y2 && bigAbs(x1 - x2) === BIG_1)) {
       // get bit indexes for both mouse positions
       const mod1 = BIG_1 << (x1 * BOARD_HEIGHT + y1);
       const mod2 = BIG_1 << (x2 * BOARD_HEIGHT + y2);
-      
+
       // get board types for both mouse positions
       const boardIndex1 = this.getType(x1, y1);
       const boardIndex2 = this.getType(x2, y2);
@@ -83,7 +84,7 @@ export class Board {
       }
 
       // No connect 3 or more found, swap back
-      this.b[boardIndex1] |= mod1; 
+      this.b[boardIndex1] |= mod1;
       this.b[boardIndex1] ^= mod2;
 
       this.b[boardIndex2] |= mod2;
@@ -91,13 +92,13 @@ export class Board {
     }
 
     return false;
-  } 
+  }
 
   public updateBoard(): number {
     if (this.fill()) {
       return -1;
     }
-    
+
     return this.findConnect3();
   }
 
@@ -127,18 +128,18 @@ export class Board {
    */
   private fill(): boolean {
     let fillPerformed: boolean = false;
-    let bIndex: BigInt;
+    let bIndex: number;
 
     // loop through all indexes in the board
-    for(let i = BOARD_SIZE - BIG_1; i >= 0; --i) {
+    for (let i = BOARD_SIZE - BIG_1; i >= 0; --i) {
       // loop through each board type to see if a piece exists at the board index
-      for(bIndex = BigInt(0); bIndex < MATCH_TYPES; ++bIndex) {
+      for (bIndex = 0; bIndex < MATCH_TYPES; ++bIndex) {
         // Check ot see if a board exists at the index and break if we find it
-        if ((this.b[bIndex] & (BIG_1 << i)) != 0) {
+        if ((this.b[bIndex] & (BIG_1 << i)) != BIG_0) {
           break; // nothing found at position i
         }
       }
-      
+
       // If bIndex is equal to MATCH_TYPES, then we know that we found a piece
       // and keep going. Else, that means we didn't find a piece and we either 
       // need to move the piece above down or fill in randomly
@@ -146,7 +147,7 @@ export class Board {
         fillPerformed = true;
         if (i % BOARD_HEIGHT == 0) {
           // Piece missing on top row, so select board index
-          const index = randomInt(0, Number(MATCH_TYPES)-1);
+          const index = randomInt(0, Number(MATCH_TYPES) - 1);
           this.b[index] |= (BIG_1 << i);
         } else {
           // Empty spot somewhere on the board that is not on the top row, so 
@@ -165,7 +166,7 @@ export class Board {
           }
         }
       }
-    } 
+    }
 
     return fillPerformed;
   }
@@ -180,16 +181,16 @@ export class Board {
 
     for (let i = 0; i < MATCH_TYPES; ++i) {
       const b = this.b[i];
-      const h = b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT*BIG_2); 
+      const h = b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT * BIG_2);
       const v = b & b << BIG_1 & b << BIG_2;
       if (h > 0) {
-        for(bitIndex = BIG_0; bitIndex < BOARD_SIZE; ++bitIndex) {
+        for (bitIndex = BIG_0; bitIndex < BOARD_SIZE; ++bitIndex) {
           // check if bit is 1
           if ((h & (BIG_1 << bitIndex)) !== BIG_0) {
             // if so, add to the score and then toggle 3 to the right to 0
             this.b[i] ^= (BIG_1 << bitIndex);
             this.b[i] ^= (BIG_1 << (bitIndex - BOARD_HEIGHT));
-            this.b[i] ^= (BIG_1 << (bitIndex - BIG_2*BOARD_HEIGHT));
+            this.b[i] ^= (BIG_1 << (bitIndex - BIG_2 * BOARD_HEIGHT));
             score += 3;
           }
         }
@@ -212,12 +213,13 @@ export class Board {
       }
     }
 
-    return score;  
+    return score;
   }
-  
+
+  // @TODO: make branchless!
   private connect3Exists(boardIndex: number): boolean {
     const b = this.b[boardIndex];
-    if ((b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT*BIG_2)) > 0) {
+    if ((b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT * BIG_2)) > 0) {
       return true;
     }
 
@@ -234,15 +236,39 @@ export class Board {
   //  1 - X X - 2
   //    5     6
   //
-  // The Xs represent two pieces together. If a piece exists at any of the 6
+  //      7
+  //    X - X
+  //      8
+  //
+  // The Xs represent two pieces together. If a piece exists at any of the 8 
   // numbered locations then there exists a valid move for the player. The same
   // is true for vertical but rotate the diagram ninety degrees.
+  //
+  // Shift and 0 out for 5, 6, and 8 with some kind of mask
   // @TODO: handle vertical
   private validMoveExistsForBoard(boardIndex: number): boolean {
     const B = this.b[boardIndex];
-    const XX = (B << (BOARD_HEIGHT*BIG_2) & (B << (BOARD_HEIGHT*BIG_3));
+    const XX = (B << (BOARD_HEIGHT * BIG_2)) & (B << (BOARD_HEIGHT * BIG_3));
+    const X_X = B & (B << (BOARD_HEIGHT * BIG_2));
+
     const h1 = B & XX;
-    const h2 = XX & (B << (BOARD_HEIGHT*BIG_5));
-    return (h1 | h2) > BIG_0;
+    const h2 = XX & (B << (BOARD_HEIGHT * BIG_5));
+    const h3 = (B << (BOARD_HEIGHT - BIG_1)) & XX;
+    const h4 = XX & (B << (BOARD_HEIGHT * BIG_4 - BIG_1));
+    const h5 = (B << (BOARD_HEIGHT + BIG_1)) & XX;
+    const h6 = XX & (B << (BOARD_HEIGHT * BIG_4 + BIG_1));
+    const h7 = X_X & (B << (BOARD_HEIGHT - BIG_1));
+    const h8 = X_X & (B << (BOARD_HEIGHT + BIG_1));
+
+    console.log(`h1: ${h1 > BIG_0}`);
+    console.log(`h2: ${h2 > BIG_0}`);
+    console.log(`h3: ${h3 > BIG_0}`);
+    console.log(`h4: ${h4 > BIG_0}`);
+    console.log(`h5: ${h5 > BIG_0}`);
+    console.log(`h6: ${h6 > BIG_0}`);
+    console.log(`h7: ${h7 > BIG_0}`);
+    console.log(`h8: ${h8 > BIG_0}`);
+
+    return (h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8) > BIG_0;
   }
 }
