@@ -1,9 +1,9 @@
 export const SCREEN_HEIGHT = 880;
 export const SCREEN_WIDTH = 640;
 
-export const BOARD_WIDTH = BigInt(6);
-export const BOARD_HEIGHT = BigInt(7);
-export const BOARD_SIZE = BOARD_WIDTH * BOARD_HEIGHT;
+export const BOARD_WIDTH: bigint = BigInt(6);
+export const BOARD_HEIGHT: bigint = BigInt(7);
+export const BOARD_SIZE: bigint = BOARD_WIDTH * BOARD_HEIGHT;
 
 export const IMAGE_WIDTH = SCREEN_WIDTH / Number(BOARD_WIDTH);
 export const IMAGE_HEIGHT = IMAGE_WIDTH;
