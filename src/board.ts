@@ -54,7 +54,6 @@ export class Board {
   public validMoveExists(): boolean {
     for (let i = 0; i < MATCH_TYPES; ++i) {
       if (this.validMoveExistsForBoard(i)) {
-        console.log(`valid move exists for: ${i}`);
         return true;
       }
     }
@@ -189,9 +188,9 @@ export class Board {
           // check if bit is 1
           if ((h & (BIG_1 << bitIndex)) !== BIG_0) {
             // if so, add to the score and then toggle 3 to the right to 0
-            this.boards[i] ^= (BIG_1 << bitIndex);
-            this.boards[i] ^= (BIG_1 << (bitIndex - BOARD_HEIGHT));
-            this.boards[i] ^= (BIG_1 << (bitIndex - BIG_2 * BOARD_HEIGHT));
+            this.boards[i] &= ~(BIG_1 << bitIndex);
+            this.boards[i] &= ~(BIG_1 << (bitIndex - BOARD_HEIGHT));
+            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2 * BOARD_HEIGHT));
             score += 3;
           }
         }
@@ -201,9 +200,9 @@ export class Board {
         // refer to h > 0 for comments
         for (bitIndex = BIG_0; bitIndex < BOARD_SIZE; ++bitIndex) {
           if ((v & (BIG_1 << bitIndex)) !== BIG_0) {
-            this.boards[i] ^= (BIG_1 << bitIndex);
-            this.boards[i] ^= (BIG_1 << (bitIndex - BIG_1));
-            this.boards[i] ^= (BIG_1 << (bitIndex - BIG_2));
+            this.boards[i] &= ~(BIG_1 << bitIndex);
+            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_1));
+            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2));
             score += 3;
           }
         }
@@ -243,13 +242,23 @@ export class Board {
   //      8
   //
   // The Xs represent two pieces together. If a piece exists at any of the 8 
-  // numbered locations then there exists a valid move for the player. The same
-  // is true for vertical but rotate the diagram ninety degrees.
+  // numbered locations then there exists a valid move for the player.
+  //   
+  //    2
+  //  1 _ 3
+  //    X 
+  //    X
+  //  4 _ 5
+  //    6
   //
-  // Shift and 0 out for 5, 6, and 8 with some kind of mask
-  // @TODO: handle vertical
+  //    X
+  //  7 _ 8
+  //    X
+  //
   private validMoveExistsForBoard(boardIndex: number): boolean {
     const B = this.boards[boardIndex];
+
+    // Test horizontal moves
     const XX = (B << (BOARD_HEIGHT * BIG_2)) & (B << (BOARD_HEIGHT * BIG_3));
     const X_X = B & (B << (BOARD_HEIGHT * BIG_2));
 
@@ -259,18 +268,19 @@ export class Board {
     const h4 = XX & (B << (BOARD_HEIGHT * BIG_4 - BIG_1));
     const h5 = (B << (BOARD_HEIGHT + BIG_1)) & XX;
     const h6 = XX & (B << (BOARD_HEIGHT * BIG_4 + BIG_1));
-    const h7 = X_X & (B << (BOARD_HEIGHT - BIG_1));
-    const h8 = X_X & (B << (BOARD_HEIGHT + BIG_1));
+    const h7 = X_X & (B << (BigInt(7) + BIG_1));
+    const h8 = X_X & (B << (BigInt(7) - BIG_1));
+    const horizontal = (h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8) > BIG_0;
 
-    console.log(`h1: ${h1 > BIG_0}`);
-    console.log(`h2: ${h2 > BIG_0}`);
-    console.log(`h3: ${h3 > BIG_0}`);
-    console.log(`h4: ${h4 > BIG_0}`);
-    console.log(`h5: ${h5 > BIG_0}`);
-    console.log(`h6: ${h6 > BIG_0}`);
-    console.log(`h7: ${h7 > BIG_0}`);
-    console.log(`h8: ${h8 > BIG_0}`);
+    // Test vertical moves
+    const vXX = (B << BIG_1) & (B << BIG_2);
+    const vX_X = B & (B << BIG_2);
 
-    return (h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8) > BIG_0;
+    const v1 = (B << BOARD_HEIGHT) & vXX;
+    const v2 = B & vXX;
+    const v3 = (B << (BOARD_HEIGHT * BIG_3)) & vXX
+    const vertical = (v1 | v2) > BIG_0;
+
+    return horizontal || vertical;
   }
 }
