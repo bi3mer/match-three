@@ -18,23 +18,13 @@ export class Board {
   // TODO: update animation so it goes top down
   // TODO: add some kind of support for a proper lerp
   //
-  //
+  // This class makes use of 7 bitboards, one for each match three type. It's 
+  // basically impossible to comment, so what I've done is I've made unit tests
+  // that I hope make things a bit more clear. Therefore, please go to 
+  // bitboard.test.ts if you want to understand how all these work. 
   //
   // For each type there is a bitboard
   //
-  // |-----------------------|
-  // | 0   7  14  21  28  35 | top row
-  // | 1   8  15  22  29  36 |
-  // | 2   9  16  23  30  37 |
-  // | 3  10  17  24  31  38 |
-  // | 4  11  18  25  32  39 |
-  // | 5  12  19  26  33  40 |
-  // | 6  13  20  27  34  41 | bottom row
-  // |-----------------------|
-  //
-  // Meaning, we are not using 42-63 of a 64 bit number in JavaScript. Also, 
-  // note that while I would like to use Number, bit operations on it converts
-  // to a 32 bit number, which breaks this representation. So... BigInt.
   //
   boards: bigint[]
 
@@ -233,28 +223,6 @@ export class Board {
 
   // Need to handle horizontal positions in 6 different dirrections
   //
-  //    3     4
-  //  1 - X X - 2
-  //    5     6
-  //
-  //      7
-  //    X - X
-  //      8
-  //
-  // The Xs represent two pieces together. If a piece exists at any of the 8 
-  // numbered locations then there exists a valid move for the player.
-  //   
-  //    2
-  //  1 _ 3
-  //    X 
-  //    X
-  //  4 _ 5
-  //    6
-  //
-  //    X
-  //  7 _ 8
-  //    X
-  //
   private validMoveExistsForBoard(boardIndex: number): boolean {
     const B = this.boards[boardIndex];
 
@@ -273,12 +241,18 @@ export class Board {
     const horizontal = (h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8) > BIG_0;
 
     // Test vertical moves
-    const vXX = (B << BIG_1) & (B << BIG_2);
+    const vXX = (B >> BIG_1) & (B >> BIG_2);
     const vX_X = B & (B << BIG_2);
 
     const v1 = (B << BOARD_HEIGHT) & vXX;
-    const v2 = B & vXX;
-    const v3 = (B << (BOARD_HEIGHT * BIG_3)) & vXX
+    const v2 = (B << BIG_1) & vXX;
+    const v3 = (B >> BOARD_HEIGHT) & vXX;
+    const v4 = (B >> (BIG_3 - BOARD_HEIGHT)) & vXX;
+    const v5 = (B >> BIG_4) & vXX;
+    const v6 = (B >> (BOARD_HEIGHT + BIG_3)) & vXX;
+    const v7 = (B << (BOARD_HEIGHT + BIG_1)) & vX_X;
+    const v8 = (B << (BIG_1 - BOARD_HEIGHT)) & vX_X;
+
     const vertical = (v1 | v2) > BIG_0;
 
     return horizontal || vertical;
