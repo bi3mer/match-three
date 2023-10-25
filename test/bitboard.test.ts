@@ -1,11 +1,10 @@
 import { expect, test } from "bun:test";
 import { BOARD_HEIGHT } from "../src/constants";
+import { connect3Possible } from "../src/board";
+import { printBoard } from "../src/util";
 
 const BIG_0: bigint = BigInt(0);
 const BIG_1: bigint = BigInt(1);
-const BIG_2: bigint = BigInt(2);
-const BIG_3: bigint = BigInt(3);
-const BIG_4: bigint = BigInt(4);
 
 // I'm representing a bitboard with the following indices
 //
@@ -62,6 +61,85 @@ const BIG_4: bigint = BigInt(4);
 // board.ts. 
 
 // HORIZONTAL unit tests
+test("h1", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(14));
+  B |= (BIG_1 << BigInt(21));
+  B |= (BIG_1 << BigInt(0));
+
+  expect(connect3Possible(B)).toBeTrue();
+});
+
+test("h1-wrap", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(8));
+  B |= (BIG_1 << BigInt(15));
+  B |= (BIG_1 << BigInt(35));
+
+  expect(connect3Possible(B)).toBeFalse();
+
+  B = BIG_0;
+  B |= (BIG_1 << BigInt(11));
+  B |= (BIG_1 << BigInt(18));
+  B |= (BIG_1 << BigInt(40));
+  B |= (BIG_1 << BigInt(33));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("h2", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(14));
+  B |= (BIG_1 << BigInt(21));
+  B |= (BIG_1 << BigInt(35));
+
+  expect(connect3Possible(B)).toBeTrue();
+});
+
+test("h2-wrap", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(27));
+  B |= (BIG_1 << BigInt(34));
+  B |= (BIG_1 << BigInt(5));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("h3", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(36));
+  B |= (BIG_1 << BigInt(29));
+  B |= (BIG_1 << BigInt(21));
+
+  expect(connect3Possible(B)).toBeTrue();
+});
+
+test("h3-wrap-1", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(14));
+  B |= (BIG_1 << BigInt(21));
+  B |= (BIG_1 << BigInt(13));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("h3-wrap-2", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(20));
+  B |= (BIG_1 << BigInt(27));
+  B |= (BIG_1 << BigInt(7));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("h4", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(36));
+  B |= (BIG_1 << BigInt(29));
+  B |= (BIG_1 << BigInt(21));
+
+  expect(connect3Possible(B)).toBeTrue();
+});
 
 // VERTICAL unit tests
 test("v1", () => {
@@ -70,9 +148,7 @@ test("v1", () => {
   B |= (BIG_1 << BigInt(16));
   B |= (BIG_1 << BigInt(17));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v1 = (B << BOARD_HEIGHT) & vXX;
-  expect(v1 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 test("v2", () => {
@@ -81,9 +157,7 @@ test("v2", () => {
   B |= (BIG_1 << BigInt(17));
   B |= (BIG_1 << BigInt(14));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v2 = (B << BIG_1) & vXX;
-  expect(v2 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 
@@ -93,9 +167,7 @@ test("v3", () => {
   B |= (BIG_1 << BigInt(17));
   B |= (BIG_1 << BigInt(22));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v3 = (B >> BOARD_HEIGHT) & vXX;
-  expect(v3 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 test("v4", () => {
@@ -104,9 +176,7 @@ test("v4", () => {
   B |= (BIG_1 << BigInt(17));
   B |= (BIG_1 << BigInt(11));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v4 = (B >> (BIG_3 - BOARD_HEIGHT)) & vXX;
-  expect(v4 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 test("v5", () => {
@@ -115,9 +185,7 @@ test("v5", () => {
   B |= (BIG_1 << BigInt(17));
   B |= (BIG_1 << BigInt(19));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v5 = (B >> BIG_4) & vXX;
-  expect(v5 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 test("v6", () => {
@@ -126,11 +194,28 @@ test("v6", () => {
   B |= (BIG_1 << BigInt(17));
   B |= (BIG_1 << BigInt(25));
 
-  const vXX = (B >> BIG_1) & (B >> BIG_2);
-  const v6 = (B >> (BOARD_HEIGHT + BIG_3)) & vXX;
-  expect(v6 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
+test("v6-wrap-1", () => {
+  let B: bigint = BIG_0;
+
+  B |= (BIG_1 << BigInt(18));
+  B |= (BIG_1 << BigInt(19));
+  B |= (BIG_1 << BigInt(21));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("v6-wrap-2", () => {
+  let B: bigint = BIG_0;
+
+  B |= (BIG_1 << BigInt(18));
+  B |= (BIG_1 << BigInt(19));
+  B |= (BIG_1 << BigInt(7));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
 
 test("v7", () => {
   let B: bigint = BIG_0;
@@ -138,9 +223,7 @@ test("v7", () => {
   B |= (BIG_1 << BigInt(18));
   B |= (BIG_1 << BigInt(10));
 
-  const vX_X = B & (B << BIG_2);
-  const v7 = (B << (BOARD_HEIGHT + BIG_1)) & vX_X;
-  expect(v7 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
 });
 
 test("v8", () => {
@@ -149,7 +232,80 @@ test("v8", () => {
   B |= (BIG_1 << BigInt(18));
   B |= (BIG_1 << BigInt(24));
 
-  const vX_X = B & (B << BIG_2);
-  const v8 = (B << (BIG_1 - BOARD_HEIGHT)) & vX_X;
-  expect(v8 > BIG_0).toBeTrue();
+  expect(connect3Possible(B)).toBeTrue();
+});
+
+test("vertical-fail-1", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(12));
+  B |= (BIG_1 << BigInt(13));
+  B |= (BIG_1 << BigInt(0));
+  B |= (BIG_1 << BigInt(14));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test("vertical-fail-2", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(7));
+  B |= (BIG_1 << BigInt(8));
+  B |= (BIG_1 << BigInt(6));
+  B |= (BIG_1 << BigInt(20));
+
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+// Weird things
+test("weird-apple", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(35));
+  B |= (BIG_1 << BigInt(29));
+  B |= (BIG_1 << BigInt(27));
+
+  printBoard(B);
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test('vertical-wrap-1', () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(7));
+  B |= (BIG_1 << BigInt(4));
+  B |= (BIG_1 << BigInt(6));
+
+  printBoard(B);
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test('vertical-wrap-2', () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(14));
+  B |= (BIG_1 << BigInt(13));
+  B |= (BIG_1 << BigInt(5));
+
+  printBoard(B);
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test('vertical-wrap-2', () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(20));
+  B |= (BIG_1 << BigInt(21));
+  B |= (BIG_1 << BigInt(29));
+
+  printBoard(B);
+  expect(connect3Possible(B)).toBeFalse();
+});
+
+test('broccoli-wrap', () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(14));
+  B |= (BIG_1 << BigInt(8));
+  // B |= (BIG_1 << BigInt(37));
+  // B |= (BIG_1 << BigInt(3));
+  // B |= (BIG_1 << BigInt(17));
+  B |= (BIG_1 << BigInt(6));
+  // B |= (BIG_1 << BigInt(27));
+
+  printBoard(B);
+  expect(connect3Possible(B)).toBeFalse();
 });

@@ -3,23 +3,23 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH, MATCH_TYPES } from "./constants";
 export class Assets {
   static matchTypes: HTMLImageElement[]
   static backGround: HTMLImageElement
-  
-  static init(): void {
-    const types = [
-      "apple",
-      "bread",
-      "coconut",
-      "green-thing",
-      "milk",
-      "orange",
-      "star"
-    ];
 
+  static types = [
+    "apple",
+    "bread",
+    "coconut",
+    "green-thing",
+    "milk",
+    "orange",
+    "star"
+  ];
+
+  static init(): void {
     this.matchTypes = [];
-    
-    for(let i = 0; i < MATCH_TYPES; ++i) {
+
+    for (let i = 0; i < MATCH_TYPES; ++i) {
       this.matchTypes.push(new Image());
-      this.matchTypes[i].src = `assets/${types[i]}.png`;
+      this.matchTypes[i].src = `assets/${this.types[i]}.png`;
       this.matchTypes[i].width = Number(IMAGE_WIDTH);
       this.matchTypes[i].height = Number(IMAGE_HEIGHT);
     }

@@ -1,5 +1,6 @@
-import { BOARD_HEIGHT, BOARD_SIZE, MATCH_TYPES } from "./constants";
-import { randomInt, bigAbs } from "./util";
+import { Assets } from "./assets";
+import { BOARD_HEIGHT, BOARD_SIZE, BOARD_WIDTH, MATCH_TYPES } from "./constants";
+import { randomInt, bigAbs, printBoard } from "./util";
 
 const BIG_0: bigint = BigInt(0);
 const BIG_1: bigint = BigInt(1);
@@ -8,9 +9,97 @@ const BIG_3: bigint = BigInt(3);
 const BIG_4: bigint = BigInt(4);
 const BIG_5: bigint = BigInt(5);
 
+const TOP_ROW_MASK: bigint = ~BIG_0 ^ (
+  (BIG_1 >> BIG_0) |
+  (BIG_1 << BigInt(7)) |
+  (BIG_1 << BigInt(14)) |
+  (BIG_1 << BigInt(21)) |
+  (BIG_1 << BigInt(28)) |
+  (BIG_1 << BigInt(35))
+);
 
-//const TOP_MASK: BigInt = !BIG_0; // this is wrong!
-// console.log(TOP_MASK, typeof(TOP_MASK));
+const BOT_ROW_MASK: bigint = ~BIG_0 ^ (
+  (BIG_1 << BigInt(6)) |
+  (BIG_1 << BigInt(13)) |
+  (BIG_1 << BigInt(20)) |
+  (BIG_1 << BigInt(27)) |
+  (BIG_1 << BigInt(34)) |
+  (BIG_1 << BigInt(41))
+);
+
+const LEFT_COL_MASK: bigint = ~BIG_0 ^ (
+  (BIG_1 >> BIG_0) |
+  (BIG_1 << BIG_1) |
+  (BIG_1 << BIG_2) |
+  (BIG_1 << BIG_3) |
+  (BIG_1 << BIG_4) |
+  (BIG_1 << BIG_5) |
+  (BIG_1 << BOARD_WIDTH)
+);
+
+const RIGHT_COL_MASK: bigint = ~BIG_0 ^ (
+  (BIG_1 << BigInt(35)) |
+  (BIG_1 << BigInt(36)) |
+  (BIG_1 << BigInt(37)) |
+  (BIG_1 << BigInt(38)) |
+  (BIG_1 << BigInt(39)) |
+  (BIG_1 << BigInt(40)) |
+  (BIG_1 << BigInt(41))
+);
+
+// This is really hard to read, but I think the easiest way to understand it is 
+// look at the three diagrams in test/bitboard.test.ts. Each condition here 
+// (e.g. h1) has a corresponding unit test and position in the diagram.
+export function connect3Possible(B: bigint): boolean {
+  const XX = (B << (BOARD_HEIGHT * BIG_2)) & (B << (BOARD_HEIGHT * BIG_3));
+  const X_X = B & (B << (BOARD_HEIGHT * BIG_2));
+  // const vXX = (B >> BIG_1) & (B >> BIG_2);
+  const vX_X = B & (B << BIG_2);
+
+  const B_BOT_MASK = B & BOT_ROW_MASK;
+  const vXX_BOT_MASK = (B_BOT_MASK >> BIG_1) & (B_BOT_MASK >> BIG_2);
+  const B_TOP_MASK = B & TOP_ROW_MASK;
+  const vXX_TOP_MASK = (B_TOP_MASK >> BIG_1) & (B_TOP_MASK >> BIG_2);
+
+  const h1 = (B & XX);
+  const h2 = (XX & (B << (BOARD_HEIGHT * BIG_5)));
+  const h3 = ((B << (BOARD_HEIGHT - BIG_1)) & XX);
+  const h4 = (XX & (B << (BOARD_HEIGHT * BIG_4 - BIG_1)));
+  const h5 = ((B << (BOARD_HEIGHT + BIG_1)) & XX);
+  const h6 = (XX & (B << (BOARD_HEIGHT * BIG_4 + BIG_1)));
+  const h7 = (X_X & (B << (BOARD_HEIGHT + BIG_1)));
+  const h8 = (X_X & (B << (BOARD_HEIGHT - BIG_1)));
+  const v1 = ((B_BOT_MASK << BOARD_HEIGHT) & vXX_TOP_MASK);
+  const v2 = ((B_BOT_MASK << BIG_1) & vXX_TOP_MASK);
+  const v3 = ((B_BOT_MASK >> BOARD_HEIGHT) & vXX_TOP_MASK);
+  const v4 = ((B_TOP_MASK >> (BIG_3 - BOARD_HEIGHT)) & vXX_BOT_MASK);
+  const v5 = ((B_TOP_MASK >> BIG_4) & vXX_BOT_MASK);
+  const v6 = ((B_TOP_MASK >> (BOARD_HEIGHT + BIG_3)) & vXX_BOT_MASK);
+  const v7 = (((B & LEFT_COL_MASK) << (BOARD_HEIGHT + BIG_1)) & vX_X);
+  const v8 = (((B & RIGHT_COL_MASK) << (BIG_1 - BOARD_HEIGHT)) & vX_X);
+
+  console.log('----h1:', h1 > BIG_0);
+  console.log('----h2:', h2 > BIG_0);
+  console.log('----h3:', h3 > BIG_0);
+  console.log('----h4:', h4 > BIG_0);
+  console.log('----h5:', h5 > BIG_0);
+  console.log('----h6:', h6 > BIG_0);
+  console.log('----h7:', h7 > BIG_0);
+  console.log('----h8:', h8 > BIG_0);
+  console.log('----v1:', v1 > BIG_0);
+  console.log('----v2:', v2 > BIG_0);
+  console.log('----v3:', v3 > BIG_0);
+  console.log('----v4:', v4 > BIG_0);
+  console.log('----v5:', v5 > BIG_0);
+  console.log('----v6:', v6 > BIG_0);
+  console.log('----v7:', v7 > BIG_0);
+  console.log('----v8:', v8 > BIG_0);
+
+  return (
+    h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8 |
+    v1 | v2 | v3 | v4 | v5 | v6 | v7 | v8) > BIG_0;
+
+}
 
 export class Board {
   // TODO: save if switch occurred and use that for updated board
@@ -43,7 +132,8 @@ export class Board {
 
   public validMoveExists(): boolean {
     for (let i = 0; i < MATCH_TYPES; ++i) {
-      if (this.validMoveExistsForBoard(i)) {
+      if (connect3Possible(this.boards[i])) {
+        console.log('Match found for', Assets.types[i], new Date());
         return true;
       }
     }
@@ -210,51 +300,8 @@ export class Board {
   // @TODO: make branchless!
   private connect3Exists(boardIndex: number): boolean {
     const b = this.boards[boardIndex];
-    if ((b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT * BIG_2)) > 0) {
-      return true;
-    }
 
-    if ((b & b << BIG_1 & b << BIG_2) > 0) {
-      return true;
-    }
-
-    return false;
-  }
-
-  // Need to handle horizontal positions in 6 different dirrections
-  //
-  private validMoveExistsForBoard(boardIndex: number): boolean {
-    const B = this.boards[boardIndex];
-
-    // Test horizontal moves
-    const XX = (B << (BOARD_HEIGHT * BIG_2)) & (B << (BOARD_HEIGHT * BIG_3));
-    const X_X = B & (B << (BOARD_HEIGHT * BIG_2));
-
-    const h1 = B & XX;
-    const h2 = XX & (B << (BOARD_HEIGHT * BIG_5));
-    const h3 = (B << (BOARD_HEIGHT - BIG_1)) & XX;
-    const h4 = XX & (B << (BOARD_HEIGHT * BIG_4 - BIG_1));
-    const h5 = (B << (BOARD_HEIGHT + BIG_1)) & XX;
-    const h6 = XX & (B << (BOARD_HEIGHT * BIG_4 + BIG_1));
-    const h7 = X_X & (B << (BigInt(7) + BIG_1));
-    const h8 = X_X & (B << (BigInt(7) - BIG_1));
-    const horizontal = (h1 | h2 | h3 | h4 | h5 | h6 | h7 | h8) > BIG_0;
-
-    // Test vertical moves
-    const vXX = (B >> BIG_1) & (B >> BIG_2);
-    const vX_X = B & (B << BIG_2);
-
-    const v1 = (B << BOARD_HEIGHT) & vXX;
-    const v2 = (B << BIG_1) & vXX;
-    const v3 = (B >> BOARD_HEIGHT) & vXX;
-    const v4 = (B >> (BIG_3 - BOARD_HEIGHT)) & vXX;
-    const v5 = (B >> BIG_4) & vXX;
-    const v6 = (B >> (BOARD_HEIGHT + BIG_3)) & vXX;
-    const v7 = (B << (BOARD_HEIGHT + BIG_1)) & vX_X;
-    const v8 = (B << (BIG_1 - BOARD_HEIGHT)) & vX_X;
-
-    const vertical = (v1 | v2) > BIG_0;
-
-    return horizontal || vertical;
+    return ((b & b << BIG_1 & b << BIG_2) > 0) ||
+      ((b & b << BOARD_HEIGHT & b << (BOARD_HEIGHT * BIG_2)) > 0);
   }
 }

@@ -91,9 +91,10 @@ export class Game {
       if (this.brd.validMoveExists()) {
         this.state = constants.STATE_PLAYER;
       } else {
-        this.brd.clear();
-        this.score += Number(constants.BOARD_SIZE);
-        this.state = constants.STATE_TIME_OUT; // @TODO: change to explosion state
+        console.log('no valid moves!'); // @TODO: remove me!
+        // this.brd.clear();
+        // this.score += Number(constants.BOARD_SIZE);
+        // this.state = constants.STATE_TIME_OUT; // @TODO: change to explosion state
       }
     } else {
       this.score += Math.max(0, modScore);
