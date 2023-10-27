@@ -1,7 +1,9 @@
 import { Assets } from "./assets";
 import { Board } from "./board";
 import * as constants from "./constants";
+import { Explosion } from "./explosion";
 import { Mouse } from "./mouse";
+import { SoundManager } from "./sounds";
 
 export class Game {
   private canvas: HTMLCanvasElement
@@ -11,6 +13,7 @@ export class Game {
   private score: number
   private timeOut: number
   private mouse: Mouse
+  private explosion: Explosion
 
   constructor() {
     this.canvas = document.createElement("canvas");
@@ -24,6 +27,7 @@ export class Game {
     this.state = constants.STATE_CHECK_BOARD;
     this.score = 0;
     this.timeOut = 0;
+    this.explosion = new Explosion();
 
     this.mouse = new Mouse(this.canvas);
   }
@@ -31,41 +35,46 @@ export class Game {
   render(): void {
     this.ctx.drawImage(Assets.backGround, 0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
 
-    // this.brd.isDirty = false;
-    let y, x;
+    if (this.state === constants.STATE_EXPLOSION) {
+      this.explosion.render(this.ctx);
+    } else {
+      // this.brd.isDirty = false;
+      let y, x;
 
-    for (y = 0; y < constants.BOARD_HEIGHT; ++y) {
-      for (x = 0; x < constants.BOARD_WIDTH; ++x) {
-        const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
-        if (assetIndex == -1) continue;
-        if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
+      for (y = 0; y < constants.BOARD_HEIGHT; ++y) {
+        for (x = 0; x < constants.BOARD_WIDTH; ++x) {
+          const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
 
-        this.ctx.drawImage(
-          Assets.matchTypes[assetIndex],
-          x * constants.IMAGE_WIDTH,
-          (y + 1) * constants.IMAGE_HEIGHT, // first row is for UI
-          constants.IMAGE_WIDTH,
-          constants.IMAGE_HEIGHT);
+          if (assetIndex == -1) continue;
+          if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
+
+          this.ctx.drawImage(
+            Assets.matchTypes[assetIndex],
+            x * constants.IMAGE_WIDTH,
+            (y + 1) * constants.IMAGE_HEIGHT, // first row is for UI
+            constants.IMAGE_WIDTH,
+            constants.IMAGE_HEIGHT);
+        }
       }
-    }
 
-    if (this.mouse.mouseDown) {
-      const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
-      if (type !== -1) {
-        this.ctx.drawImage(
-          Assets.matchTypes[type],
-          this.mouse.x - constants.IMAGE_WIDTH / 2,
-          this.mouse.y - constants.IMAGE_HEIGHT / 2,
-          constants.IMAGE_WIDTH,
-          constants.IMAGE_HEIGHT
-        );
+      if (this.mouse.mouseDown) {
+        const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
+        if (type !== -1) {
+          this.ctx.drawImage(
+            Assets.matchTypes[type],
+            this.mouse.x - constants.IMAGE_WIDTH / 2,
+            this.mouse.y - constants.IMAGE_HEIGHT / 2,
+            constants.IMAGE_WIDTH,
+            constants.IMAGE_HEIGHT
+          );
+        }
       }
-    }
 
-    const scoreText = `Score: ${this.score}`;
-    this.ctx.fillStyle = 'white';
-    this.ctx.font = '40px monospace'
-    this.ctx.fillText(scoreText, constants.SCREEN_WIDTH / 2.7, constants.IMAGE_HEIGHT / 2);
+      const scoreText = `Score: ${this.score}`;
+      this.ctx.fillStyle = 'white';
+      this.ctx.font = '40px monospace'
+      this.ctx.fillText(scoreText, constants.SCREEN_WIDTH / 2.7, constants.IMAGE_HEIGHT / 2);
+    }
   }
 
   update(deltaTime: number): void {
@@ -79,6 +88,9 @@ export class Game {
       case constants.STATE_PLAYER:
         this.playerState();
         break;
+      case constants.STATE_EXPLOSION:
+        this.explosionState(deltaTime);
+        break;
       default:
         console.error(`Unhandled state '${this.state}'. The game is ruined.`);
         break;
@@ -91,15 +103,20 @@ export class Game {
       if (this.brd.validMoveExists()) {
         this.state = constants.STATE_PLAYER;
       } else {
-        console.log('no valid moves!'); // @TODO: remove me!
-        // this.brd.clear();
-        // this.score += Number(constants.BOARD_SIZE);
-        // this.state = constants.STATE_TIME_OUT; // @TODO: change to explosion state
+        this.brd.clear();
+        this.score += Number(constants.BOARD_SIZE);
+        this.state = constants.STATE_EXPLOSION;
+        this.explosion.reset();
+        SoundManager.playExplosion();
       }
     } else {
       this.score += Math.max(0, modScore);
       this.timeOut = 25;
       this.state = constants.STATE_TIME_OUT;
+
+      if (modScore !== -1) {
+        SoundManager.playMatchSound();
+      }
     }
   }
 
@@ -122,6 +139,13 @@ export class Game {
         this.timeOut = 500;
         this.state = constants.STATE_TIME_OUT;
       }
+    }
+  }
+
+  private explosionState(deltaTime: number): void {
+    if (this.explosion.update(deltaTime)) {
+      this.timeOut = 250;
+      this.state = constants.STATE_TIME_OUT;
     }
   }
 }

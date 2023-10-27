@@ -10,49 +10,11 @@ const BIG_4: bigint = BigInt(4);
 const BIG_5: bigint = BigInt(5);
 const BIG_9: bigint = BigInt(9);
 
-const TOP_ROW_MASK: bigint = ~BIG_0 ^ (
-  (BIG_1 >> BIG_0) |
-  (BIG_1 << BigInt(7)) |
-  (BIG_1 << BigInt(14)) |
-  (BIG_1 << BigInt(21)) |
-  (BIG_1 << BigInt(28)) |
-  (BIG_1 << BigInt(35))
-);
-
-const BOT_ROW_MASK: bigint = ~BIG_0 ^ (
-  (BIG_1 << BigInt(6)) |
-  (BIG_1 << BigInt(13)) |
-  (BIG_1 << BigInt(20)) |
-  (BIG_1 << BigInt(27)) |
-  (BIG_1 << BigInt(34)) |
-  (BIG_1 << BigInt(41))
-);
-
-const LEFT_COL_MASK: bigint = ~BIG_0 ^ (
-  (BIG_1 >> BIG_0) |
-  (BIG_1 << BIG_1) |
-  (BIG_1 << BIG_2) |
-  (BIG_1 << BIG_3) |
-  (BIG_1 << BIG_4) |
-  (BIG_1 << BIG_5) |
-  (BIG_1 << BOARD_WIDTH)
-);
-
-const RIGHT_COL_MASK: bigint = ~BIG_0 ^ (
-  (BIG_1 << BigInt(35)) |
-  (BIG_1 << BigInt(36)) |
-  (BIG_1 << BigInt(37)) |
-  (BIG_1 << BigInt(38)) |
-  (BIG_1 << BigInt(39)) |
-  (BIG_1 << BigInt(40)) |
-  (BIG_1 << BigInt(41))
-);
-
 // This is really hard to read, but I think the easiest way to understand it is 
 // look at the three diagrams in test/bitboard.test.ts. Each condition here 
 // (e.g. h1) has a corresponding unit test and position in the diagram.
 export function connect3Possible(B: bigint): boolean {
-  // horizontal matches
+  // Horizontal matches
   const XX = (B << (BIG_9 * BIG_2)) & (B << (BIG_9 * BIG_3));
   const X_X = B & (B << (BIG_9 * BIG_2));
 
@@ -65,30 +27,18 @@ export function connect3Possible(B: bigint): boolean {
   const h7 = (X_X & (B << (BIG_9 + BIG_1)));
   const h8 = (X_X & (B << (BIG_9 - BIG_1)));
 
-  // vertical matches
-  // const B_BOT_MASK = B & BOT_ROW_MASK;
-  // const B_TOP_MASK = B & TOP_ROW_MASK;
-  // const vXX_BOT_MASK = (B_BOT_MASK >> BIG_1) & (B_BOT_MASK >> BIG_2);
-  // const vXX_TOP_MASK = (B_TOP_MASK >> BIG_1) & (B_TOP_MASK >> BIG_2);
-  // const vX_X_BOT = (B_BOT_MASK & (B_BOT_MASK << BIG_2));
-  // const vX_X_TOP = (B_TOP_MASK & (B_TOP_MASK << BIG_2));
-
-
+  // Vertical matches
   const vXX = (B >> BIG_1) & (B >> BIG_2);
   const vX_X = B & (B >> BIG_2);
+
   const v1 = ((B << BIG_9) & vXX);
   const v2 = ((B << BIG_1) & vXX);
   const v3 = ((B >> BIG_9) & vXX);
   const v4 = ((B >> (BIG_3 - BIG_9)) & vXX);
   const v5 = ((B >> BIG_4) & vXX);
   const v6 = ((B >> (BIG_9 + BIG_3)) & vXX);
-  const v7 = (B << (BIG_1 + BIG_9)) & vX_X;
-  const v8 = (B << (BIG_1 - BIG_9)) & vX_X;
-
-  // const v7_bot = (((B & LEFT_COL_MASK) << (BIG_9 + BIG_1)) & vX_X_BOT);
-  // const v7_top = (((B & LEFT_COL_MASK) << (BIG_9 + BIG_1)) & vX_X_TOP);
-  // const v8_bot = (((B & RIGHT_COL_MASK) << (BIG_1 - BIG_9)) & vX_X_BOT);
-  // const v8_top = (((B & RIGHT_COL_MASK) << (BIG_1 - BIG_9)) & vX_X_TOP);
+  const v7 = (B >> (BIG_1 - BIG_9)) & vX_X;
+  const v8 = (B >> (BIG_1 + BIG_9)) & vX_X;
 
   // Debugging prints
   // console.log('----h1:    ', h1 > BIG_0);
@@ -107,10 +57,6 @@ export function connect3Possible(B: bigint): boolean {
   // console.log('----v6:    ', v6 > BIG_0);
   // console.log('----v7:    ', v7 > BIG_0);
   // console.log('----v8:    ', v8 > BIG_0);
-  // console.log('----v7_bot:', v7_bot > BIG_0);
-  // console.log('----v7_top:', v7_top > BIG_0);
-  // console.log('----v8_bot:', v8_bot > BIG_0);
-  // console.log('----v8_top:', v8_top > BIG_0);
 
   // If the or of all 16 is greater than 0, that means at least one possible 
   // match 3 was found for the player.
@@ -230,9 +176,8 @@ export class Board {
 
     // loop through all indexes in the board
     for (let y = BIG_0; y < BOARD_HEIGHT; ++y) {
-      const yMod = y * BIG_9;
       for (let x = BIG_0; x < BOARD_WIDTH; ++x) {
-        const index = yMod + x;
+        const index = y + x * BIG_9;
         for (bIndex = 0; bIndex < MATCH_TYPES; ++bIndex) {
           if ((this.boards[bIndex] & BIG_1 << index) != BIG_0) {
             break;
@@ -276,34 +221,41 @@ export class Board {
    * @returns number - score
    */
   private findConnect3(): number {
-    let bitIndex: bigint;
+    let bitIndex: bigint, x: bigint, y: bigint;
     let score = 0;
 
     for (let i = 0; i < MATCH_TYPES; ++i) {
       const b = this.boards[i];
       const h = b & b << BIG_9 & b << (BIG_9 * BIG_2);
       const v = b & b << BIG_1 & b << BIG_2;
+
       if (h > 0) {
-        for (bitIndex = BIG_0; bitIndex < BOARD_SIZE; ++bitIndex) {
-          // check if bit is 1
-          if ((h & (BIG_1 << bitIndex)) !== BIG_0) {
-            // if so, add to the score and then toggle 3 to the right to 0
-            this.boards[i] &= ~(BIG_1 << bitIndex);
-            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_9));
-            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2 * BIG_9));
-            score += 3;
+        for (x = BIG_0; x < BOARD_WIDTH; ++x) {
+          let xMod = x * BIG_9;
+          for (y = BIG_0; y < BOARD_HEIGHT; ++y) {
+            bitIndex = xMod + y;
+            if ((h & (BIG_1 << bitIndex)) !== BIG_0) {
+              // if so, add to the score and then toggle 3 to the right to 0
+              this.boards[i] &= ~(BIG_1 << bitIndex);
+              this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_9));
+              this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2 * BIG_9));
+              score += 3;
+            }
           }
         }
       }
 
       if (v > 0) {
-        // refer to h > 0 for comments
-        for (bitIndex = BIG_0; bitIndex < BOARD_SIZE; ++bitIndex) {
-          if ((v & (BIG_1 << bitIndex)) !== BIG_0) {
-            this.boards[i] &= ~(BIG_1 << bitIndex);
-            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_1));
-            this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2));
-            score += 3;
+        for (x = BIG_0; x < BOARD_WIDTH; ++x) {
+          let xMod = x * BIG_9;
+          for (y = BIG_0; y < BOARD_HEIGHT; ++y) {
+            bitIndex = xMod + y;
+            if ((v & (BIG_1 << bitIndex)) !== BIG_0) {
+              this.boards[i] &= ~(BIG_1 << bitIndex);
+              this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_1));
+              this.boards[i] &= ~(BIG_1 << (bitIndex - BIG_2));
+              score += 3;
+            }
           }
         }
       }

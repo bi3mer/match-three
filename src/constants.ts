@@ -13,5 +13,9 @@ export const STATE_MOUSE_MOVEMENT = 1;
 export const STATE_ANIMATION = 2;
 export const STATE_CHECK_BOARD = 4;
 export const STATE_TIME_OUT = 5;
+export const STATE_EXPLOSION = 6;
 
 export const MATCH_TYPES = 7;
+
+export const NUM_PARTICLES = 1000;
+export const EXPLOSION_TIME = 1000;

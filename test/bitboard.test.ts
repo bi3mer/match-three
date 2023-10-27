@@ -237,95 +237,20 @@ test("v6-wrap-2", () => {
   expect(connect3Possible(B)).toBeFalse();
 });
 
-// test("v7", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(16));
-//   B |= (BIG_1 << BigInt(18));
-//   B |= (BIG_1 << BigInt(10));
-//
-//   expect(connect3Possible(B)).toBeTrue();
-// });
-//
-// test("v7-2", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(35));
-//   B |= (BIG_1 << BigInt(29));
-//   B |= (BIG_1 << BigInt(37));
-//
-//   expect(connect3Possible(B)).toBeTrue();
-// });
-//
-// test("v8", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(16));
-//   B |= (BIG_1 << BigInt(18));
-//   B |= (BIG_1 << BigInt(24));
-//
-//   expect(connect3Possible(B)).toBeTrue();
-// });
-//
-// test("vertical-fail-1", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(12));
-//   B |= (BIG_1 << BigInt(13));
-//   B |= (BIG_1 << BigInt(0));
-//   B |= (BIG_1 << BigInt(14));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// test("vertical-fail-2", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(7));
-//   B |= (BIG_1 << BigInt(8));
-//   B |= (BIG_1 << BigInt(6));
-//   B |= (BIG_1 << BigInt(20));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// // Weird things
-// test("weird-apple", () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(35));
-//   B |= (BIG_1 << BigInt(29));
-//   B |= (BIG_1 << BigInt(27));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// test('vertical-wrap-1', () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(7));
-//   B |= (BIG_1 << BigInt(4));
-//   B |= (BIG_1 << BigInt(6));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// test('vertical-wrap-2', () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(14));
-//   B |= (BIG_1 << BigInt(13));
-//   B |= (BIG_1 << BigInt(5));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// test('vertical-wrap-2', () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(20));
-//   B |= (BIG_1 << BigInt(21));
-//   B |= (BIG_1 << BigInt(29));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
-//
-// test('broccoli-wrap', () => {
-//   let B: bigint = BIG_0;
-//   B |= (BIG_1 << BigInt(14));
-//   B |= (BIG_1 << BigInt(8));
-//   B |= (BIG_1 << BigInt(6));
-//
-//   expect(connect3Possible(B)).toBeFalse();
-// });
+test("v7", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(13));
+  B |= (BIG_1 << BigInt(15));
+  B |= (BIG_1 << BigInt(5));
+
+  expect(connect3Possible(B)).toBeTrue();
+});
+
+test("v8", () => {
+  let B: bigint = BIG_0;
+  B |= (BIG_1 << BigInt(40));
+  B |= (BIG_1 << BigInt(42));
+  B |= (BIG_1 << BigInt(50));
+
+  expect(connect3Possible(B)).toBeTrue();
+});

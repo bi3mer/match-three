@@ -1,3 +1,5 @@
+import { warn } from "console";
+
 /**
  * LERP
  * @param a - start coordinate
@@ -14,6 +16,16 @@ export function lerp(a: number, b: number, percent: number) {
  */
 export function randomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+
+export function randomFloat(min: number, max: number): number {
+  return Math.random() * (max - min + 1) + min;
+}
+
+// randomly return -1 or 1
+export function randomSign(): number {
+  return Math.sign(Math.random() - 0.5);
 }
 
 // @TODO: make this branchless
