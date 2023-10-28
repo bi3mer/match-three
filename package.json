@@ -13,6 +13,6 @@
     "build": "bun build src/index.ts --outfile dist/bundle.js",
     "watch": "bun build src/index.ts --outfile dist/bundle.js --watch",
     "prod": "bun build src/index.ts --outfile dist/bundle.js --minify",
-    "test": "bun run test_bits.ts"
+    "server": "bun run src/server.ts"
   }
 }
