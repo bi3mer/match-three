@@ -1,3 +1,4 @@
+import { warn } from "console";
 import { Assets } from "./assets";
 import { Board } from "./board";
 import * as constants from "./constants";
@@ -35,46 +36,47 @@ export class Game {
   render(): void {
     this.ctx.drawImage(Assets.backGround, 0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
 
+
+    // this.brd.isDirty = false;
+    let y, x;
+
+    for (y = 0; y < constants.BOARD_HEIGHT; ++y) {
+      for (x = 0; x < constants.BOARD_WIDTH; ++x) {
+        const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
+
+        if (assetIndex == -1) continue;
+        if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
+
+        this.ctx.drawImage(
+          Assets.matchTypes[assetIndex],
+          x * constants.IMAGE_WIDTH,
+          (y + 1) * constants.IMAGE_HEIGHT, // first row is for UI
+          constants.IMAGE_WIDTH,
+          constants.IMAGE_HEIGHT);
+      }
+    }
+
+    if (this.mouse.mouseDown) {
+      const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
+      if (type !== -1) {
+        this.ctx.drawImage(
+          Assets.matchTypes[type],
+          this.mouse.x - constants.IMAGE_WIDTH / 2,
+          this.mouse.y - constants.IMAGE_HEIGHT / 2,
+          constants.IMAGE_WIDTH,
+          constants.IMAGE_HEIGHT
+        );
+      }
+    }
+
     if (this.state === constants.STATE_EXPLOSION) {
       this.explosion.render(this.ctx);
-    } else {
-      // this.brd.isDirty = false;
-      let y, x;
-
-      for (y = 0; y < constants.BOARD_HEIGHT; ++y) {
-        for (x = 0; x < constants.BOARD_WIDTH; ++x) {
-          const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
-
-          if (assetIndex == -1) continue;
-          if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
-
-          this.ctx.drawImage(
-            Assets.matchTypes[assetIndex],
-            x * constants.IMAGE_WIDTH,
-            (y + 1) * constants.IMAGE_HEIGHT, // first row is for UI
-            constants.IMAGE_WIDTH,
-            constants.IMAGE_HEIGHT);
-        }
-      }
-
-      if (this.mouse.mouseDown) {
-        const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
-        if (type !== -1) {
-          this.ctx.drawImage(
-            Assets.matchTypes[type],
-            this.mouse.x - constants.IMAGE_WIDTH / 2,
-            this.mouse.y - constants.IMAGE_HEIGHT / 2,
-            constants.IMAGE_WIDTH,
-            constants.IMAGE_HEIGHT
-          );
-        }
-      }
-
-      const scoreText = `Score: ${this.score}`;
-      this.ctx.fillStyle = 'white';
-      this.ctx.font = '40px monospace'
-      this.ctx.fillText(scoreText, constants.SCREEN_WIDTH / 2.7, constants.IMAGE_HEIGHT / 2);
     }
+
+    const scoreText = `Score: ${this.score}`;
+    this.ctx.fillStyle = 'white';
+    this.ctx.font = '40px monospace'
+    this.ctx.fillText(scoreText, constants.SCREEN_WIDTH / 2.7, constants.IMAGE_HEIGHT / 2);
   }
 
   update(deltaTime: number): void {

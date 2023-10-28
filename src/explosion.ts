@@ -1,3 +1,4 @@
+import { warn } from "console";
 import { EXPLOSION_TIME, NUM_PARTICLES, SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { randomFloat, randomInt, randomSign } from "./util";
 
