@@ -1,5 +1,7 @@
 import { Assets } from "./assets";
-import { Game } from "./game";
+import { Engine } from "./engine";
+import { MainMenu } from "./scene/mainMenu";
+import { Scene } from "./scene/scene";
 import { SoundManager } from "./sounds";
 
 (() => {
@@ -16,21 +18,30 @@ import { SoundManager } from "./sounds";
       // hide progress bar
       document.getElementById('progress')!.hidden = true;
 
-      // start the game
-      const game = new Game();
+      let sceneIndex = 0;
+      let scenes: Scene[] = [
+        new MainMenu()
+      ];
 
-      let oldTimeFrame = (new Date()).getTime();
-      let delta: number = 0;
 
-      const loop = (timeStep: number) => {
-        delta = timeStep - oldTimeFrame;
-        oldTimeFrame = timeStep;
-        game.update(delta);
-        game.render();
-        window.requestAnimationFrame(loop);
-      }
+      const engine = new Engine(scenes, sceneIndex);
+      engine.run();
 
-      window.requestAnimationFrame(loop);
+      // // start the game
+      // const game = new Game();
+      //
+      // let oldTimeFrame = (new Date()).getTime();
+      // let delta: number = 0;
+      //
+      // const loop = (timeStep: number) => {
+      //   delta = timeStep - oldTimeFrame;
+      //   oldTimeFrame = timeStep;
+      //   game.update(delta);
+      //   game.render();
+      //   window.requestAnimationFrame(loop);
+      // }
+      //
+      // window.requestAnimationFrame(loop);
     }
   };
 
