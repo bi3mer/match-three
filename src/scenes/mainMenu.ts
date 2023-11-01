@@ -1,10 +1,10 @@
 import { IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
 import { Scene } from "../engine/scene";
-import { drawStrokedText } from "../engine/util";
+import { drawStrokedText } from "../engine/UI/text";
 import { AssetsManager } from "../engine/assetManager";
 
 export class MainMenu extends Scene {
-  public update(deltaTime: number): number {
+  public update(_deltaTime: number): number {
     return -1;
   }
 

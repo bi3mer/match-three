@@ -275,4 +275,23 @@ export class Board {
     return ((b & b << BIG_1 & b << BIG_2) > 0) ||                  // vertical
       ((b & b << BIG_9 & b << (BIG_9 * BIG_2)) > 0); // horizontal
   }
+
+  /////////////////////// Utility / Debugging
+  public print(typeIndex: number): void {
+    const b = this.boards[typeIndex];
+
+    for (let i = BigInt(0); i < BigInt(7); ++i) {
+      let s = "";
+      for (let j = BigInt(0); j < BigInt(6); ++j) {
+        const index = j * BigInt(9) + i;
+        if ((b & (BigInt(1) << index)) != BigInt(0)) {
+          s += '1';
+        } else {
+          s += '0';
+        }
+      }
+
+      console.log(s);
+    }
+  }
 }
