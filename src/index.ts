@@ -1,12 +1,28 @@
-import { Assets } from "./assets";
-import { Engine } from "./engine";
-import { MainMenu } from "./scene/mainMenu";
-import { Scene } from "./scene/scene";
-import { SoundManager } from "./sounds";
+import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./constants";
+import { AssetsManager } from "./engine/assetManager";
+import { Engine } from "./engine/engine";
+import { Game } from "./scenes/game";
+import { MainMenu } from "./scenes/mainMenu";
 
 (() => {
-  Assets.init();
-  SoundManager.init();
+  // Start asset loading
+  AssetsManager.loadImage("apple.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("bread.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("coconut.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("broccoli.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("milk.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("orange.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("star.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
+  AssetsManager.loadImage("bg.png", null, null);
+
+
+
+  const mainMenUScene = new MainMenu();
+  const gameScene = new Game();
+
+  const engine = new Engine([mainMenUScene, gameScene], 0);
+  engine.start();
+
   const loadLoop = () => {
     const loaded = Assets.percentLoaded();
 
@@ -17,31 +33,6 @@ import { SoundManager } from "./sounds";
     } else {
       // hide progress bar
       document.getElementById('progress')!.hidden = true;
-
-      let sceneIndex = 0;
-      let scenes: Scene[] = [
-        new MainMenu()
-      ];
-
-
-      const engine = new Engine(scenes, sceneIndex);
-      engine.run();
-
-      // // start the game
-      // const game = new Game();
-      //
-      // let oldTimeFrame = (new Date()).getTime();
-      // let delta: number = 0;
-      //
-      // const loop = (timeStep: number) => {
-      //   delta = timeStep - oldTimeFrame;
-      //   oldTimeFrame = timeStep;
-      //   game.update(delta);
-      //   game.render();
-      //   window.requestAnimationFrame(loop);
-      // }
-      //
-      // window.requestAnimationFrame(loop);
     }
   };
 

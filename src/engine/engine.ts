@@ -1,5 +1,7 @@
 import { Scene } from "./scene/scene";
 import * as constants from "./constants";
+import { Assets } from "./assets";
+import { SoundManager } from "./sounds";
 
 export class Engine {
   private canvas: HTMLCanvasElement
@@ -8,6 +10,10 @@ export class Engine {
   private scenes: Scene[]
 
   constructor(scenes: Scene[], sceneIndex: number) {
+    Assets.init();
+    SoundManager.init();
+    Mouse.init();
+
     this.scenes = scenes;
     this.sceneIndex = sceneIndex;
 
@@ -19,7 +25,7 @@ export class Engine {
     this.ctx = this.canvas.getContext('2d')!;
   }
 
-  public run(): void {
+  public start(): void {
     let oldFrameTime = (new Date()).getTime();
     let delta = 0;
 
