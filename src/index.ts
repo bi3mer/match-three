@@ -1,7 +1,6 @@
-import { IMAGE_HEIGHT, IMAGE_WIDTH } from "./constants";
+import { IMAGE_HEIGHT, IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
 import { AssetsManager } from "./engine/assetManager";
 import { Engine } from "./engine/engine";
-import { Game } from "./scenes/game";
 import { MainMenu } from "./scenes/mainMenu";
 
 (() => {
@@ -15,26 +14,15 @@ import { MainMenu } from "./scenes/mainMenu";
   AssetsManager.loadImage("star.png", Number(IMAGE_WIDTH), Number(IMAGE_HEIGHT));
   AssetsManager.loadImage("bg.png", null, null);
 
-
+  AssetsManager.loadSound('success_1.wav', 0);
+  AssetsManager.loadSound('success_2.wav', 0);
+  AssetsManager.loadSound('success_3.wav', 0);
+  AssetsManager.loadSound('success_4.wav', 0);
+  AssetsManager.loadSound('explosion.wav', 0);
 
   const mainMenUScene = new MainMenu();
-  const gameScene = new Game();
 
-  const engine = new Engine([mainMenUScene, gameScene], 0);
+  const engine = new Engine([mainMenUScene], 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   engine.start();
 
-  const loadLoop = () => {
-    const loaded = Assets.percentLoaded();
-
-    if (loaded !== 1.0 && SoundManager.isLoaded()) {
-      // @ts-ignore
-      document.getElementById('progress')!.value = loaded;
-      window.requestAnimationFrame(loadLoop);
-    } else {
-      // hide progress bar
-      document.getElementById('progress')!.hidden = true;
-    }
-  };
-
-  window.requestAnimationFrame(loadLoop);
 })();

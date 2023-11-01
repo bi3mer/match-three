@@ -1,7 +1,6 @@
-import { Scene } from "./scene/scene";
-import * as constants from "./constants";
-import { Assets } from "./assets";
-import { SoundManager } from "./sounds";
+import { Scene } from "./scene";
+import { Mouse } from "./mouse";
+import { AssetsManager } from "./assetManager";
 
 export class Engine {
   private canvas: HTMLCanvasElement
@@ -9,40 +8,60 @@ export class Engine {
   private sceneIndex: number;
   private scenes: Scene[]
 
-  constructor(scenes: Scene[], sceneIndex: number) {
-    Assets.init();
-    SoundManager.init();
-    Mouse.init();
-
+  constructor(scenes: Scene[], sceneIndex: number, canvasWidth: number, canvasHeight: number) {
     this.scenes = scenes;
     this.sceneIndex = sceneIndex;
 
     this.canvas = document.createElement("canvas");
     this.canvas.setAttribute('id', 'canvas');
-    this.canvas.setAttribute('width', `${constants.SCREEN_WIDTH}`);
-    this.canvas.setAttribute('height', `${constants.SCREEN_HEIGHT}`);
-    document.getElementById('canvashere')!.appendChild(this.canvas);
+    this.canvas.setAttribute('width', `${canvasWidth}`);
+    this.canvas.setAttribute('height', `${canvasHeight}`);
+
+    document.getElementById('canvashere')!.appendChild(this.canvas); // TODO: make configurable
     this.ctx = this.canvas.getContext('2d')!;
+
+    Mouse.init(this.canvas);
   }
 
   public start(): void {
-    let oldFrameTime = (new Date()).getTime();
-    let delta = 0;
+    // create progress bar
+    const progressBar = document.createElement('progress');
+    progressBar.max = 1;
 
-    const gameLoop = (timeStep: number) => {
-      delta = timeStep - oldFrameTime;
-      oldFrameTime = timeStep;
+    document.getElementById('canvashere')!.appendChild(progressBar); // TODO: make configurable
 
-      const newIndex = this.scenes[this.sceneIndex].update(delta);
-      if (newIndex !== -1) {
-        this.sceneIndex = newIndex;
+    const assetLoadLoop = () => {
+      progressBar.value = AssetsManager.percentLoaded();
+
+      if (progressBar.value !== 1.0) {
+        window.requestAnimationFrame(assetLoadLoop);
+      } else {
+        // hide progress bar
+        progressBar.hidden = true;
+
+        // start game loop
+        let oldFrameTime = (new Date()).getTime();
+        let delta = 0;
+
+        const gameLoop = (timeStep: number) => {
+          delta = timeStep - oldFrameTime;
+          oldFrameTime = timeStep;
+
+          const newIndex = this.scenes[this.sceneIndex].update(delta);
+          if (newIndex !== -1) {
+            this.sceneIndex = newIndex;
+          }
+
+          this.scenes[this.sceneIndex].render(this.ctx);
+
+          window.requestAnimationFrame(gameLoop);
+        };
+
+        window.requestAnimationFrame(gameLoop);
       }
-
-      this.scenes[this.sceneIndex].render(this.ctx);
-
-      window.requestAnimationFrame(gameLoop);
     };
 
-    window.requestAnimationFrame(gameLoop);
+    window.requestAnimationFrame(assetLoadLoop);
+
   }
 }

@@ -1,7 +1,7 @@
-import { Assets } from "../assets";
-import { SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
-import { drawStrokedText } from "../util";
-import { Scene } from "./scene";
+import { IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
+import { Scene } from "../engine/scene";
+import { drawStrokedText } from "../engine/util";
+import { AssetsManager } from "../engine/assetManager";
 
 export class MainMenu extends Scene {
   public update(deltaTime: number): number {
@@ -32,7 +32,7 @@ export class MainMenu extends Scene {
 
     const width = 200;
     ctx.drawImage(
-      Assets.matchTypes[1],
+      AssetsManager.images[1],
       (SCREEN_WIDTH - width) / 5,
       600,
       width,
@@ -40,8 +40,8 @@ export class MainMenu extends Scene {
     );
 
     ctx.drawImage(
-      Assets.matchTypes[0],
-      (SCREEN_WIDTH - Assets.matchTypes[0].width) / 2,
+      AssetsManager.images[0],
+      (SCREEN_WIDTH - IMAGE_WIDTH) / 2,
       550
     );
   }
