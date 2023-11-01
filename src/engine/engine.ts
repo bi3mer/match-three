@@ -27,6 +27,7 @@ export class Engine {
     // create progress bar
     const progressBar = document.createElement('progress');
     progressBar.max = 1;
+    progressBar.value = 0;
 
     document.getElementById('canvashere')!.appendChild(progressBar); // TODO: make configurable
 

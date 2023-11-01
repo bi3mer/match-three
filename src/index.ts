@@ -24,5 +24,4 @@ import { MainMenu } from "./scenes/mainMenu";
 
   const engine = new Engine([mainMenUScene], 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   engine.start();
-
 })();

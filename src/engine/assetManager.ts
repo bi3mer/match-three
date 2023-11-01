@@ -37,7 +37,7 @@ export class AssetsManager {
     }
 
     for (i = 0; i < this.sounds.length; ++i) {
-      loaded += Number(this.sounds[i][0].readyState);
+      loaded += Number(this.sounds[i][0].readyState === 4); // 4 means the audio is fully loaded
     }
 
     return loaded / (this.images.length + this.sounds.length);
