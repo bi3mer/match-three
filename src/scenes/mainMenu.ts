@@ -2,9 +2,41 @@ import { IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants";
 import { Scene } from "../engine/scene";
 import { drawStrokedText } from "../engine/UI/text";
 import { AssetsManager } from "../engine/assetManager";
+import { Mouse } from "../engine/mouse";
 
 export class MainMenu extends Scene {
+  private playButtonX: number;
+  private playButtonY: number;
+  private playButtonWidth: number;
+  private playButtonHeight: number;
+  private playButtonColor: string;
+  private playButtonRegularColor: string;
+  private playButtonHighlightColor: string;
+
+  constructor() {
+    super();
+
+    this.playButtonX = SCREEN_WIDTH / 2 - 76;
+    this.playButtonY = SCREEN_HEIGHT / 2;
+    this.playButtonWidth = 100;
+    this.playButtonHeight = 100;
+
+    this.playButtonRegularColor = '#FCD534';
+    this.playButtonHighlightColor = 'White';
+    this.playButtonColor = this.playButtonRegularColor;
+  }
+
   public update(_deltaTime: number): number {
+    if (Mouse.x >= this.playButtonX && Mouse.x <= this.playButtonX + this.playButtonWidth && Mouse.y <= this.playButtonY && Mouse.y >= this.playButtonY - this.playButtonHeight) {
+      this.playButtonColor = this.playButtonHighlightColor;
+
+      if (Mouse.mouseDown) {
+        return 1; // scene index for game scene
+      }
+    } else {
+      this.playButtonColor = this.playButtonRegularColor;
+    }
+
     return -1;
   }
 
@@ -26,7 +58,7 @@ export class MainMenu extends Scene {
       SCREEN_WIDTH / 2 - 76,
       SCREEN_HEIGHT / 2,
       "60px Monaco",
-      "White",
+      this.playButtonColor,
       "Black"
     );
 
