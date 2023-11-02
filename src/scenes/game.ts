@@ -1,145 +1,140 @@
-import { warn } from "console";
-import { Assets } from "./assets";
-import { Board } from "./board";
-import * as constants from "./constants";
-import { Explosion } from "./explosion";
-import { Mouse } from "./mouse";
-import { SoundManager } from "./sounds";
+import { Scene } from "../engine/scene";
+import { Board } from "../board";
+import { Explosion } from "../engine/explosion";
+import { BOARD_HEIGHT, BOARD_SIZE, BOARD_WIDTH, IMAGE_HEIGHT, IMAGE_WIDTH, NUM_PARTICLES, SCREEN_HEIGHT, SCREEN_WIDTH, STATE_CHECK_BOARD, STATE_EXPLOSION, STATE_PLAYER, STATE_TIME_OUT } from "../constants";
+import { AssetsManager } from "../engine/assetManager";
+import { Mouse } from "../engine/mouse";
 
-export class Game {
-  private canvas: HTMLCanvasElement
-  private ctx: CanvasRenderingContext2D
+export class Game extends Scene {
   private brd: Board
   private state: number
   private score: number
   private timeOut: number
-  private mouse: Mouse
   private explosion: Explosion
 
   constructor() {
-    this.canvas = document.createElement("canvas");
-    this.canvas.setAttribute('id', 'canvas');
-    this.canvas.setAttribute('width', `${constants.SCREEN_WIDTH}`);
-    this.canvas.setAttribute('height', `${constants.SCREEN_HEIGHT}`);
-    document.getElementById('canvashere')!.appendChild(this.canvas);
-    this.ctx = this.canvas.getContext('2d')!;
+    super();
 
     this.brd = new Board();
-    this.state = constants.STATE_CHECK_BOARD;
+    this.state = STATE_CHECK_BOARD;
     this.score = 0;
     this.timeOut = 0;
-    this.explosion = new Explosion();
-
-    this.mouse = new Mouse(this.canvas);
+    this.explosion = new Explosion(NUM_PARTICLES);
   }
 
-  render(): void {
-    this.ctx.drawImage(Assets.backGround, 0, 0, constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT);
+  render(ctx: CanvasRenderingContext2D): void {
+    ctx.drawImage(AssetsManager.images[AssetsManager.images.length - 1], 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 
     // this.brd.isDirty = false;
     let y, x;
+    const [downX, downY, _upX, _upY] = this.getMouseCoordinated();
 
-    for (y = 0; y < constants.BOARD_HEIGHT; ++y) {
-      for (x = 0; x < constants.BOARD_WIDTH; ++x) {
+    for (y = 0; y < BOARD_HEIGHT; ++y) {
+      for (x = 0; x < BOARD_WIDTH; ++x) {
         const assetIndex = this.brd.getType(BigInt(x), BigInt(y));
-
         if (assetIndex == -1) continue;
-        if (this.mouse.mouseDown && this.mouse.downX == x && this.mouse.downY == y) continue;
+        if (Mouse.mouseDown && downX == x && downY == y) continue; // @TODO: convert x and y to grid
 
-        this.ctx.drawImage(
-          Assets.matchTypes[assetIndex],
-          x * constants.IMAGE_WIDTH,
-          (y + 1) * constants.IMAGE_HEIGHT, // first row is for UI
-          constants.IMAGE_WIDTH,
-          constants.IMAGE_HEIGHT);
+        ctx.drawImage(
+          AssetsManager.images[assetIndex],
+          x * IMAGE_WIDTH,
+          (y + 1) * IMAGE_HEIGHT, // first row is for UI
+          IMAGE_WIDTH,
+          IMAGE_HEIGHT);
       }
     }
 
-    if (this.mouse.mouseDown) {
-      const type = this.brd.getType(BigInt(this.mouse.downX), BigInt(this.mouse.downY));
+    if (Mouse.mouseDown) {
+      const type = this.brd.getType(BigInt(downX), BigInt(downY)); // @TODO: convert x and y to grid
       if (type !== -1) {
-        this.ctx.drawImage(
-          Assets.matchTypes[type],
-          this.mouse.x - constants.IMAGE_WIDTH / 2,
-          this.mouse.y - constants.IMAGE_HEIGHT / 2,
-          constants.IMAGE_WIDTH,
-          constants.IMAGE_HEIGHT
+        ctx.drawImage(
+          AssetsManager.images[type],
+          Mouse.x - IMAGE_WIDTH / 2,
+          Mouse.y - IMAGE_HEIGHT / 2,
+          IMAGE_WIDTH,
+          IMAGE_HEIGHT
         );
       }
     }
 
-    if (this.state === constants.STATE_EXPLOSION) {
-      this.explosion.render(this.ctx);
+    if (this.state === STATE_EXPLOSION) {
+      this.explosion.render(ctx);
     }
 
     const scoreText = `Score: ${this.score}`;
-    this.ctx.fillStyle = 'white';
-    this.ctx.font = '40px monospace'
-    this.ctx.fillText(scoreText, constants.SCREEN_WIDTH / 2.7, constants.IMAGE_HEIGHT / 2);
+    ctx.fillStyle = 'white';
+    ctx.font = '40px monospace'
+    ctx.fillText(scoreText, SCREEN_WIDTH / 2.7, IMAGE_HEIGHT / 2);
   }
 
-  update(deltaTime: number): void {
+  update(deltaTime: number): number {
     switch (this.state) {
-      case constants.STATE_CHECK_BOARD:
+      case STATE_CHECK_BOARD:
         this.checkBoardState();
         break;
-      case constants.STATE_TIME_OUT:
+      case STATE_TIME_OUT:
         this.timeOutState(deltaTime);
         break;
-      case constants.STATE_PLAYER:
+      case STATE_PLAYER:
         this.playerState();
         break;
-      case constants.STATE_EXPLOSION:
+      case STATE_EXPLOSION:
         this.explosionState(deltaTime);
         break;
       default:
         console.error(`Unhandled state '${this.state}'. The game is ruined.`);
         break;
     }
+
+    return -1; // @TODO: can never go back to main menu or a loss state right now
   }
 
   private checkBoardState() {
     const modScore = this.brd.updateBoard();
     if (modScore === 0) {
       if (this.brd.validMoveExists()) {
-        this.state = constants.STATE_PLAYER;
+        this.state = STATE_PLAYER;
       } else {
         this.brd.clear();
-        this.score += Number(constants.BOARD_SIZE);
-        this.state = constants.STATE_EXPLOSION;
+        this.score += Number(BOARD_SIZE);
+        this.state = STATE_EXPLOSION;
         this.explosion.reset();
-        SoundManager.playExplosion();
+        AssetsManager.playSound(4);
+        // SoundManager.playExplosion();
       }
     } else {
       this.score += Math.max(0, modScore);
       this.timeOut = 25;
-      this.state = constants.STATE_TIME_OUT;
+      this.state = STATE_TIME_OUT;
 
       if (modScore !== -1) {
-        SoundManager.playMatchSound();
+        AssetsManager.playSound(0);
+        // SoundManager.playMatchSound();
       }
     }
   }
 
   private timeOutState(deltaTime: number) {
     if (this.timeOut <= 0) {
-      this.state = constants.STATE_CHECK_BOARD;
+      this.state = STATE_CHECK_BOARD;
     } else {
       this.timeOut -= deltaTime;
     }
   }
 
   private playerState() {
-    if (this.mouse.shouldHandleMouseEvent) {
-      this.mouse.shouldHandleMouseEvent = false;
+    if (Mouse.shouldHandleMouseEvent) {
+      Mouse.shouldHandleMouseEvent = false;
+      const [downX, downY, upX, upY] = this.getMouseCoordinated();
+
       if (this.brd.runSwitch(
-        BigInt(this.mouse.downX),
-        BigInt(this.mouse.downY),
-        BigInt(this.mouse.upX),
-        BigInt(this.mouse.upY))) {
+        BigInt(downX),
+        BigInt(downY),
+        BigInt(upX),
+        BigInt(upY))) {
         this.timeOut = 500;
-        this.state = constants.STATE_TIME_OUT;
+        this.state = STATE_TIME_OUT;
       }
     }
   }
@@ -147,7 +142,16 @@ export class Game {
   private explosionState(deltaTime: number): void {
     if (this.explosion.update(deltaTime)) {
       this.timeOut = 250;
-      this.state = constants.STATE_TIME_OUT;
+      this.state = STATE_TIME_OUT;
     }
+  }
+
+  private getMouseCoordinated(): [number, number, number, number] {
+    return [
+      Math.floor(Mouse.downX / IMAGE_WIDTH),
+      Math.floor(Mouse.downY / IMAGE_HEIGHT) - 1,
+      Math.floor(Mouse.upX / IMAGE_WIDTH),
+      Math.floor(Mouse.upY / IMAGE_HEIGHT) - 1
+    ];
   }
 }

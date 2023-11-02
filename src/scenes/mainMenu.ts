@@ -18,8 +18,8 @@ export class MainMenu extends Scene {
 
     this.playButtonX = SCREEN_WIDTH / 2 - 76;
     this.playButtonY = SCREEN_HEIGHT / 2;
-    this.playButtonWidth = 100;
-    this.playButtonHeight = 100;
+    this.playButtonWidth = 150;
+    this.playButtonHeight = 90;
 
     this.playButtonRegularColor = '#FCD534';
     this.playButtonHighlightColor = 'White';
@@ -27,7 +27,7 @@ export class MainMenu extends Scene {
   }
 
   public update(_deltaTime: number): number {
-    if (Mouse.x >= this.playButtonX && Mouse.x <= this.playButtonX + this.playButtonWidth && Mouse.y <= this.playButtonY && Mouse.y >= this.playButtonY - this.playButtonHeight) {
+    if (Mouse.x >= this.playButtonX && Mouse.x <= this.playButtonX + this.playButtonWidth && Mouse.y <= this.playButtonY + 15 && Mouse.y >= this.playButtonY - this.playButtonHeight) {
       this.playButtonColor = this.playButtonHighlightColor;
 
       if (Mouse.mouseDown) {

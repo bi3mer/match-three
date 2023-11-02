@@ -1,6 +1,5 @@
-import { Assets } from "./assets";
-import { BOARD_HEIGHT, BOARD_SIZE, BOARD_WIDTH, MATCH_TYPES } from "./constants";
-import { randomInt, bigAbs, printBoard } from "./util";
+import { BOARD_HEIGHT, BOARD_WIDTH, MATCH_TYPES } from "./constants";
+import { randomInt, bigAbs } from "./engine/util";
 
 const BIG_0: bigint = BigInt(0);
 const BIG_1: bigint = BigInt(1);
@@ -97,7 +96,7 @@ export class Board {
   public validMoveExists(): boolean {
     for (let i = 0; i < MATCH_TYPES; ++i) {
       if (connect3Possible(this.boards[i])) {
-        console.log('Match found for', Assets.types[i], new Date());
+        // console.log('Match found for', Assets.types[i], new Date());
         return true;
       }
     }

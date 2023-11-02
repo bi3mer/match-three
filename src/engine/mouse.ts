@@ -28,8 +28,7 @@ export class Mouse {
     canvas.addEventListener('mousedown', (e: MouseEvent) => {
       this.downX = e.x - canvas.offsetLeft;
       this.downY = e.y - canvas.offsetTop;
-      // this.downX = Math.floor((e.x - canvas.offsetLeft) / IMAGE_WIDTH);
-      // this.downY = Math.floor((e.y - canvas.offsetTop) / IMAGE_HEIGHT) - 1;
+
       this.mouseDown = true;
     });
 

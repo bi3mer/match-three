@@ -1,5 +1,4 @@
-import { warn } from "console";
-import { EXPLOSION_TIME, NUM_PARTICLES, SCREEN_HEIGHT, SCREEN_WIDTH } from "./constants";
+import { EXPLOSION_TIME, SCREEN_HEIGHT, SCREEN_WIDTH } from "../constants"; // @TODO: shouldn't use constants here
 import { randomFloat, randomInt, randomSign } from "./util";
 
 export class Explosion {
@@ -7,13 +6,13 @@ export class Explosion {
   acceleration: [number, number][]
   elapsed: number
 
-  constructor() {
+  constructor(numParticles: number) {
     this.elapsed = 0;
 
     this.particles = [];
     this.acceleration = [];
 
-    for (let i = 0; i < NUM_PARTICLES; ++i) {
+    for (let i = 0; i < numParticles; ++i) {
       this.particles.push([0, 0]);
       this.acceleration.push([0, 0])
     }
@@ -21,8 +20,9 @@ export class Explosion {
 
   public reset(): void {
     this.elapsed = 0;
+    const size = this.particles.length;
 
-    for (let i = 0; i < NUM_PARTICLES; ++i) {
+    for (let i = 0; i < size; ++i) {
       this.particles[i][0] = SCREEN_WIDTH / 2;
       this.particles[i][1] = SCREEN_HEIGHT / 2;
 
@@ -33,7 +33,8 @@ export class Explosion {
 
   // Return true if explosion is finished
   public update(deltaTime: number): boolean {
-    for (let i = 0; i < NUM_PARTICLES; ++i) {
+    const size = this.particles.length;
+    for (let i = 0; i < size; ++i) {
       this.particles[i][0] += this.acceleration[i][0];
       this.particles[i][1] += this.acceleration[i][1];
     }
@@ -43,8 +44,10 @@ export class Explosion {
   }
 
   public render(ctx: CanvasRenderingContext2D): void {
+    const size = this.particles.length;
     ctx.fillStyle = 'white';
-    for (let i = 0; i < NUM_PARTICLES; ++i) {
+
+    for (let i = 0; i < size; ++i) {
       ctx.beginPath()
       ctx.arc(this.particles[i][0], this.particles[i][1], 10, 0, 2 * Math.PI);
       ctx.fill();

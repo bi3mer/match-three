@@ -21,6 +21,11 @@ export class Engine {
     this.ctx = this.canvas.getContext('2d')!;
 
     Mouse.init(this.canvas);
+
+    // pass canvas to scenes in case they need it
+    for (let i = 0; i < scenes.length; ++i) {
+      scenes[i].canvas = this.canvas;
+    }
   }
 
   public start(): void {

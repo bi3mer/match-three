@@ -2,6 +2,7 @@ import { IMAGE_HEIGHT, IMAGE_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH } from "./consta
 import { AssetsManager } from "./engine/assetManager";
 import { Engine } from "./engine/engine";
 import { MainMenu } from "./scenes/mainMenu";
+import { Game } from "./scenes/game";
 
 (() => {
   // Start asset loading
@@ -20,8 +21,9 @@ import { MainMenu } from "./scenes/mainMenu";
   AssetsManager.loadSound('success_4.wav', 0);
   AssetsManager.loadSound('explosion.wav', 0);
 
-  const mainMenUScene = new MainMenu();
-
-  const engine = new Engine([mainMenUScene], 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+  const engine = new Engine([
+    new MainMenu(),
+    new Game(),
+  ], 0, SCREEN_WIDTH, SCREEN_HEIGHT);
   engine.start();
 })();
