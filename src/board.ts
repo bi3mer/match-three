@@ -80,10 +80,27 @@ export class Board {
   //
   boards: bigint[]
 
-  constructor() {
+  constructor(inputBoard: number[][] | undefined = undefined) {
     this.boards = [];
     for (let i = 0; i < MATCH_TYPES; ++i) {
       this.boards.push(BIG_0);
+    }
+
+    if (inputBoard !== undefined) {
+      if (inputBoard.length !== Number(BOARD_HEIGHT) || inputBoard[0].length !== Number(BOARD_WIDTH)) {
+        throw new Error(`Invalid board dimensions (${inputBoard.length}, ${inputBoard[0].length})`);
+      }
+
+      let index: number;
+      let boardIndex: bigint;
+      for (let y = BIG_0; y < BOARD_HEIGHT; ++y) {
+        for (let x = BIG_0; x < BOARD_WIDTH; ++x) {
+          index = inputBoard[Number(y)][Number(x)];
+          boardIndex = y + x * BIG_9;
+          this.boards[index] |= (BIG_1 << boardIndex);
+          // this.boards[y]
+        }
+      }
     }
   }
 
@@ -279,11 +296,12 @@ export class Board {
   public print(typeIndex: number): void {
     const b = this.boards[typeIndex];
 
-    for (let i = BigInt(0); i < BigInt(7); ++i) {
+    for (let i = BIG_0; i < BigInt(7); ++i) {
       let s = "";
-      for (let j = BigInt(0); j < BigInt(6); ++j) {
-        const index = j * BigInt(9) + i;
-        if ((b & (BigInt(1) << index)) != BigInt(0)) {
+      for (let j = BIG_0; j < BigInt(6); ++j) {
+        const index = (j * BIG_9) + i;
+
+        if ((b & (BIG_1 << index)) != BIG_0) {
           s += '1';
         } else {
           s += '0';

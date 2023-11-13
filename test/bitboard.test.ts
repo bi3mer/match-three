@@ -1,7 +1,5 @@
 import { expect, test } from "bun:test";
-import { BOARD_HEIGHT } from "../src/constants";
 import { connect3Possible } from "../src/board";
-import { printBoard } from "../src/util";
 
 const BIG_0: bigint = BigInt(0);
 const BIG_1: bigint = BigInt(1);
