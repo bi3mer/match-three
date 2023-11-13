@@ -25,5 +25,5 @@ let inputBoard = [
 ];
 
 let b = new Board(inputBoard);
-b.updateBoard();
-b.print(1);
+console.log('running tree search');
+console.log(b.treeSearch());

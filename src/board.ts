@@ -1,3 +1,4 @@
+import { argv0 } from "process";
 import { BOARD_HEIGHT, BOARD_WIDTH, MATCH_TYPES } from "./constants";
 import { randomInt, bigAbs } from "./engine/util";
 
@@ -104,6 +105,15 @@ export class Board {
     }
   }
 
+  private copy(): Board {
+    const b = new Board();
+    for (let i = 0; i < MATCH_TYPES; ++i) {
+      b.boards[i] = this.boards[i]; // bigint is pass by value
+    }
+
+    return b;
+  }
+
   public clear(): void {
     for (let i = 0; i < MATCH_TYPES; ++i) {
       this.boards[i] = BIG_0;
@@ -131,6 +141,11 @@ export class Board {
       // get board types for both mouse positions
       const boardIndex1 = this.getType(x1, y1);
       const boardIndex2 = this.getType(x2, y2);
+
+      // make sure a valid type found
+      if (boardIndex1 === -1 || boardIndex2 === -1) {
+        return false;
+      }
 
       // swap types
       this.boards[boardIndex1] ^= mod1; // toggle start position to 0
@@ -174,14 +189,6 @@ export class Board {
   }
 
   /**
-   * Get a list of all valid moves for the current board. Going to be used by
-   * an AI to play the game.
-   */
-  public validMoves(): [number, number][] {
-    return [];
-  }
-
-  /**
    * Loop through the board and fill empty spots either with whatever tile
    * is on top of the current tile or by putting in a random tile. Will return
    * true if a fill operation is run. Else, returns false.
@@ -200,7 +207,7 @@ export class Board {
           }
         }
 
-        // If bIndex is equal to MATCH_TYPES, then we know that we found a piece
+        // If bIndex is not equal to MATCH_TYPES, then we know that we found a piece
         // and keep going. Else, that means we didn't find a piece and we either 
         // need to move the piece above down or fill in randomly
         if (bIndex == MATCH_TYPES) {
@@ -209,20 +216,22 @@ export class Board {
             // Piece missing on top row, so select board index
             const type = randomInt(0, Number(MATCH_TYPES) - 1);
             this.boards[type] |= (BIG_1 << index);
-          } else {
-            // Empty spot somewhere on the board that is not on the top row, so 
-            // we should take the piece above this and place it down here. Refer
-            // to the board above to see that up by one is subtraction by one.
-            const aboveIndex = (BIG_1 << (index - BIG_1));
-            for (let aboveBoardIndex = 0; aboveBoardIndex < MATCH_TYPES; ++aboveBoardIndex) {
-              if ((this.boards[aboveBoardIndex] & aboveIndex) != BIG_0) {
-                // set the current position i to 1
-                this.boards[aboveBoardIndex] |= (BIG_1 << index);
+          }
+        } else {
+          fillPerformed = true;
 
-                // toggle the position above to 0
-                this.boards[aboveBoardIndex] ^= aboveIndex;
-                break;
-              }
+          // Empty spot somewhere on the board that is not on the top row, so 
+          // we should take the piece above this and place it down here. Refer
+          // to the board above to see that up by one is subtraction by one.
+          const aboveIndex = (BIG_1 << (index - BIG_1));
+          for (let aboveBoardIndex = 0; aboveBoardIndex < MATCH_TYPES; ++aboveBoardIndex) {
+            if ((this.boards[aboveBoardIndex] & aboveIndex) != BIG_0) {
+              // set the current position i to 1
+              this.boards[aboveBoardIndex] |= (BIG_1 << index);
+
+              // toggle the position above to 0
+              this.boards[aboveBoardIndex] ^= aboveIndex;
+              break;
             }
           }
         }
@@ -287,9 +296,76 @@ export class Board {
   private connect3Exists(boardIndex: number): boolean {
     const b = this.boards[boardIndex];
 
-    // @TODO: vertical wrapping problem
-    return ((b & b << BIG_1 & b << BIG_2) > 0) ||                  // vertical
-      ((b & b << BIG_9 & b << (BIG_9 * BIG_2)) > 0); // horizontal
+    return ((b & b << BIG_1 & b << BIG_2) |     // vertical
+      (b & b << BIG_9 & b << (BIG_9 * BIG_2))) > 0; // horizontal
+  }
+
+  /////////////////////// 
+  private treeSearchUpdateBoard(): boolean {
+    // TODO: put pieces down
+
+    return this.findConnect3() === 0;
+  }
+
+  /**
+  * Finds all valid next boards. It ignores the far right column and the bottom
+  * row by reducing the for loops by 1. This is okay because switches are 
+  * tested for (0,1) and (1,0). By only testing these two and not the negative
+  * directions, we reduce the number of computations by half.
+  */
+  private validMoveBoards(): Board[] {
+    let boards: Board[] = [];
+
+    // loop through all the places where a swap can be, excluding edges
+    const H = BOARD_HEIGHT - BIG_1;
+    let W = BOARD_WIDTH - BIG_1;
+
+    for (let y = BIG_0; y < H; ++y) {
+      for (let x = BIG_0; x < W; ++x) {
+        let newB = this.copy();
+        if (newB.runSwitch(x, y, x + BIG_1, y)) {
+          boards.push(newB);
+
+          newB = this.copy();
+          if (newB.runSwitch(x, y, x, y + BIG_1)) {
+            boards.push(newB);
+          }
+        } else if (newB.runSwitch(x, y, x, y + BIG_1)) {
+          boards.push(newB);
+        }
+      }
+    }
+
+    return boards;
+  }
+
+  public treeSearch(): number {
+    // run till there are no valid updates. Ignore fill
+    console.log('update complete');
+    this.treeSearchUpdateBoard();
+    console.log('start update...');
+
+    // If no valid move exists, then the tree search is done 
+    if (!this.validMoveExists()) {
+      this.printBoard();
+      throw new Error('done');
+      return 0;
+    }
+
+    // Go through valid mmoves to update the tree search
+    let boards = this.validMoveBoards();
+    if (boards.length === 0) {
+      console.log('here')
+      this.printBoard();
+    }
+
+
+    let score = boards.length / 16; // @TODO: temp
+    for (let i = 0; i < boards.length; ++i) {
+      score += boards[i].treeSearch();
+    }
+
+    return score;
   }
 
   /////////////////////// Utility / Debugging
@@ -305,6 +381,23 @@ export class Board {
           s += '1';
         } else {
           s += '0';
+        }
+      }
+
+      console.log(s);
+    }
+  }
+
+  public printBoard(): void {
+    for (let y = BIG_0; y < BOARD_HEIGHT; ++y) {
+      let s = "";
+      for (let x = BIG_0; x < BOARD_WIDTH; ++x) {
+        const t = this.getType(x, y)
+
+        if (t === -1) {
+          s += ` `;
+        } else {
+          s += `${t}`;
         }
       }
 
