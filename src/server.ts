@@ -25,5 +25,26 @@ let inputBoard = [
 ];
 
 let b = new Board(inputBoard);
-console.log('running tree search');
+// console.log('running tree search');
+// console.log(b.treeSearch());
+//
+const BIG_0: bigint = BigInt(0);
+const BIG_1: bigint = BigInt(1);
+const BIG_2: bigint = BigInt(2);
+const BIG_3: bigint = BigInt(3);
+const BIG_4: bigint = BigInt(4);
+const BIG_5: bigint = BigInt(5);
+
+// b.runSwitch(BIG_2, BIG_1, BIG_3, BIG_1);
+// b.printBoard();
+// b.treeSearchUpdateBoard();
+// console.log('\n\n');
+// b.printBoard();
+//
+//
+// b.treeSearchUpdateBoard();
+// console.log('\n\n');
+// b.printBoard();
+//
 console.log(b.treeSearch());
+console.log(b.calls);

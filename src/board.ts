@@ -9,6 +9,7 @@ const BIG_3: bigint = BigInt(3);
 const BIG_4: bigint = BigInt(4);
 const BIG_5: bigint = BigInt(5);
 const BIG_9: bigint = BigInt(9);
+const BIG_45: bigint = BigInt(45);
 
 // This is really hard to read, but I think the easiest way to understand it is 
 // look at the three diagrams in test/bitboard.test.ts. Each condition here 
@@ -296,15 +297,41 @@ export class Board {
   private connect3Exists(boardIndex: number): boolean {
     const b = this.boards[boardIndex];
 
-    return ((b & b << BIG_1 & b << BIG_2) |     // vertical
+    return ((b & b << BIG_1 & b << BIG_2) |         // vertical
       (b & b << BIG_9 & b << (BIG_9 * BIG_2))) > 0; // horizontal
   }
 
   /////////////////////// 
-  private treeSearchUpdateBoard(): boolean {
-    // TODO: put pieces down
+  private movePiecesDown(): boolean {
+    let pieceMoved = false;
 
-    return this.findConnect3() === 0;
+    // loop through x and y coordinates, avoding the final row
+    for (let y = BIG_0; y < BOARD_HEIGHT - BIG_1; ++y) {
+      for (let x = BIG_0; x < BOARD_WIDTH; ++x) {
+        const pieceType = this.getType(x, y);
+        const pieceTypeBelow = this.getType(x, y + BIG_1);
+
+        if (pieceType != -1 && pieceTypeBelow == -1) {
+          const index = x * BIG_9 + y;
+
+          this.boards[pieceType] ^= (BIG_1 << index);
+          this.boards[pieceType] |= (BIG_1 << (index + BIG_1));
+          pieceMoved = true;
+        }
+      }
+    }
+
+    return pieceMoved;
+  }
+
+  // TODO: should be private, but debugging right now
+  public treeSearchUpdateBoard(): number {
+    let score = this.findConnect3();
+    while (this.movePiecesDown()) {
+      score += this.findConnect3();
+    }
+
+    return score;
   }
 
   /**
@@ -313,7 +340,7 @@ export class Board {
   * tested for (0,1) and (1,0). By only testing these two and not the negative
   * directions, we reduce the number of computations by half.
   */
-  private validMoveBoards(): Board[] {
+  private validNextBoards(): Board[] {
     let boards: Board[] = [];
 
     // loop through all the places where a swap can be, excluding edges
@@ -339,28 +366,18 @@ export class Board {
     return boards;
   }
 
+
   public treeSearch(): number {
     // run till there are no valid updates. Ignore fill
-    console.log('update complete');
-    this.treeSearchUpdateBoard();
-    console.log('start update...');
+    let score = this.treeSearchUpdateBoard();
 
     // If no valid move exists, then the tree search is done 
     if (!this.validMoveExists()) {
-      this.printBoard();
-      throw new Error('done');
-      return 0;
+      return score;
     }
 
     // Go through valid mmoves to update the tree search
-    let boards = this.validMoveBoards();
-    if (boards.length === 0) {
-      console.log('here')
-      this.printBoard();
-    }
-
-
-    let score = boards.length / 16; // @TODO: temp
+    let boards = this.validNextBoards();
     for (let i = 0; i < boards.length; ++i) {
       score += boards[i].treeSearch();
     }
