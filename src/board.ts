@@ -81,6 +81,8 @@ export class Board {
   //
   //
   boards: bigint[]
+  static calls: number = 0
+
 
   constructor(inputBoard: number[][] | undefined = undefined) {
     this.boards = [];
@@ -301,7 +303,11 @@ export class Board {
       (b & b << BIG_9 & b << (BIG_9 * BIG_2))) > 0; // horizontal
   }
 
-  /////////////////////// 
+  ///////////////////////  Tree Search Stuff
+  private strHash(): string {
+    return this.boards.join('');
+  }
+
   private movePiecesDown(): boolean {
     let pieceMoved = false;
 
@@ -367,7 +373,9 @@ export class Board {
   }
 
 
-  public treeSearch(): number {
+  private _treeSearch(map: Set<string>): number {
+    Board.calls++;
+
     // run till there are no valid updates. Ignore fill
     let score = this.treeSearchUpdateBoard();
 
@@ -379,10 +387,20 @@ export class Board {
     // Go through valid mmoves to update the tree search
     let boards = this.validNextBoards();
     for (let i = 0; i < boards.length; ++i) {
-      score += boards[i].treeSearch();
+      const B = boards[i];
+      const H = B.strHash();
+
+      if (!map.has(H)) {
+        score += B._treeSearch(map);
+        map.add(H);
+      }
     }
 
     return score;
+  }
+
+  public treeSearch(): number {
+    return this._treeSearch(new Set<string>());
   }
 
   /////////////////////// Utility / Debugging
