@@ -4,7 +4,8 @@
   "type": "module",
   "devDependencies": {
     "@types/web": "^0.0.116",
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "elysia": "^0.7.28"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
@@ -13,6 +14,7 @@
     "build": "bun build src/index.ts --outfile dist/bundle.js",
     "watch": "bun build src/index.ts --outfile dist/bundle.js --watch",
     "prod": "bun build src/index.ts --outfile dist/bundle.js --minify",
-    "server": "bun run src/server.ts"
+    "server": "bun run src/server.ts",
+    "server-dev": "bun --watch src/server.ts"
   }
 }

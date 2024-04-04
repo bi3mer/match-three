@@ -1,18 +1,22 @@
 import { Board } from "./board";
+import { Elysia } from 'elysia'
 
-import { Server } from "bun";
+const app = new Elysia();
+app.get('/', () => "Hello World");
 
-const helloBunServer = Bun.serve({
-  port: 8080,
-  // @ts-ignore
-  async fetch(request: Request, server: Server): Response | Promise<Response> {
-    console.log(request.url, await request.text() || '{}');
-    return new Response('Hello from Bun server.');
+app.post('/solve', (body) => {
+  if (body.body === undefined) {
+    return "FAILURE";
   }
+
+  const b = new Board(body.body as number[]);
+  const score = b.treeSearch();
+  console.log(`score: ${score}`);
+  return score;
 });
 
-console.log(`Listening ${helloBunServer.port} port.`);
-
+app.listen(8000);
+console.log(`🦊 running at ${app.server?.hostname}:${app.server?.port}`);
 
 // let inputBoard = [
 //   [1, 3, 4, 0, 0, 1],
@@ -22,7 +26,8 @@ console.log(`Listening ${helloBunServer.port} port.`);
 //   [4, 0, 0, 2, 1, 0],
 //   [1, 4, 4, 3, 2, 1],
 //   [1, 1, 2, 3, 5, 0],
-// ];
+// ].flat();
+//
 //
 // let b = new Board(inputBoard);
 //

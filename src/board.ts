@@ -84,25 +84,25 @@ export class Board {
   static calls: number = 0
 
 
-  constructor(inputBoard: number[][] | undefined = undefined) {
+  constructor(inputBoard: number[] | undefined = undefined) {
     this.boards = [];
     for (let i = 0; i < MATCH_TYPES; ++i) {
       this.boards.push(BIG_0);
     }
 
     if (inputBoard !== undefined) {
-      if (inputBoard.length !== Number(BOARD_HEIGHT) || inputBoard[0].length !== Number(BOARD_WIDTH)) {
-        throw new Error(`Invalid board dimensions (${inputBoard.length}, ${inputBoard[0].length})`);
+      if (inputBoard.length !== Number(BOARD_HEIGHT * BOARD_WIDTH)) {
+        throw new Error(`Invalid board dimension: ${inputBoard.length}`);
       }
 
       let index: number;
       let boardIndex: bigint;
       for (let y = BIG_0; y < BOARD_HEIGHT; ++y) {
         for (let x = BIG_0; x < BOARD_WIDTH; ++x) {
-          index = inputBoard[Number(y)][Number(x)];
-          boardIndex = y + x * BIG_9;
-          this.boards[index] |= (BIG_1 << boardIndex);
-          // this.boards[y]
+          index = Number(y * BOARD_WIDTH + x);
+          boardIndex = x * BIG_9 + y;
+
+          this.boards[inputBoard[index]] |= (BIG_1 << boardIndex);
         }
       }
     }
