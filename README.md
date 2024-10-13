@@ -3,6 +3,10 @@
 Assets found on [itch.io](https://devilsworkshop.itch.io/match-3-free-2d-sprites-game-art-and-ui) 
 under CC 4.0.
 
+## Bugs
+
+- Two pieces of the same kind can stack on top of each other and break the game.
+
 ## Website
 
 Game can be played on index.html. This comes with the [dist](./dist) folder---
